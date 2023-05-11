@@ -80,6 +80,6 @@ class OrderRepository
             [$order->getFieldData("oxdeltype")]
         );
 
-        return strval($value) ?: "";
+        return strval($value) !== '' ? strval($value) : "";
     }
 }

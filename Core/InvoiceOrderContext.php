@@ -80,12 +80,11 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
     }
 
     /**
-     * @return string|int|null
+     * @return string
      */
     public function getOrderNumber()
     {
-        /** @var int */
-        return $this->order->getFieldData('oxordernr');
+        return strval($this->order->getFieldData('oxordernr'));
     }
 
     /**

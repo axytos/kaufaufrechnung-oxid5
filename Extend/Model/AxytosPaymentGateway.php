@@ -18,17 +18,21 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
     /** @phpstan-ignore-next-line
      * @var \Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator */
     private $pluginConfigurationValidator;
-    /** @phpstan-ignore-next-line
-     * @var \Axytos\ECommerce\Clients\Invoice\InvoiceClientInterface */
+    /**
+     * @var \Axytos\ECommerce\Clients\Invoice\InvoiceClientInterface
+     */
     private $invoiceClient;
-    /** @phpstan-ignore-next-line
-     * @var \Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler */
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler
+     */
     private $errorHandler;
-    /** @phpstan-ignore-next-line
-     * @var \Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory */
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory
+     */
     private $invoiceOrderContextFactory;
-    /** @phpstan-ignore-next-line
-     * @var \Axytos\KaufAufRechnung_OXID5\Core\OrderCheckProcessStateMachine */
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\Core\OrderCheckProcessStateMachine
+     */
     private $orderCheckProcessStateMachine;
     /**
      * @var \Axytos\ECommerce\OrderSync\OrderHashCalculator
@@ -37,6 +41,7 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
 
     public function __construct()
     {
+        parent::__construct();
         $this->pluginConfigurationValidator = $this->getServiceFromContainer(PluginConfigurationValidator::class);
         $this->invoiceClient = $this->getServiceFromContainer(InvoiceClientInterface::class);
         $this->errorHandler = $this->getServiceFromContainer(ErrorHandler::class);
@@ -76,7 +81,6 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
             if ($shopAction === ShopActions::CHANGE_PAYMENT_METHOD) {
                 $config = oxRegistry::getConfig();
                 $utils = oxRegistry::getUtils();
-                $this->orderCheckProcessStateMachine->setFailed($order);
                 $order->delete();
                 $session->setVariable($sessionVariableKey, $shopAction);
                 $utils->redirect($config->getSslShopUrl() . 'index.php?cl=payment&' . AxytosEvents::PAYMENT_METHOD_ID . '_error_id=' . ShopActions::CHANGE_PAYMENT_METHOD, false);

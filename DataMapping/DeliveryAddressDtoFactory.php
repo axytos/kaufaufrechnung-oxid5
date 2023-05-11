@@ -16,42 +16,71 @@ class DeliveryAddressDtoFactory
     {
         $deliveryAddressDto = new DeliveryAddressDto();
 
-        if ($order->getFieldData("oxdelstreet")) {
+        if (strval($order->getFieldData("oxdelstreet")) !== '') {
             $deliveryAddressDto->addressLine1 = $order->getFieldData("oxdelstreet") . " " . $order->getFieldData("oxdelstreetnr");
         } else {
             $deliveryAddressDto->addressLine1 = $order->getFieldData("oxbillstreet") . " " . $order->getFieldData("oxbillstreetnr");
         }
 
-        $deliveryAddressDto->city = strval($order->getFieldData("oxdelcity") ?: $order->getFieldData("oxbillcity")) ?: null;
-        $deliveryAddressDto->company = strval($order->getFieldData("oxdelcompany") ?: $order->getFieldData("oxbillcompany")) ?: null;
-        $deliveryAddressDto->firstname = strval($order->getFieldData("oxdelfname") ?: $order->getFieldData("oxbillfname")) ?: null;
-        $deliveryAddressDto->lastname = strval($order->getFieldData("oxdellname") ?: $order->getFieldData("oxbilllname")) ?: null;
-        $deliveryAddressDto->salutation = strval($order->getFieldData("oxdelsal") ?: $order->getFieldData("oxbillsal")) ?: null;
-        $deliveryAddressDto->vatId = strval($order->getFieldData("oxdelustid") ?: $order->getFieldData("oxbillustid")) ?: null;
-        $deliveryAddressDto->zipCode = strval($order->getFieldData("oxdelzip") ?: $order->getFieldData("oxbillzip")) ?: null;
+        $deliveryAddressDto->city = $this->getStringFieldOrAlternative($order, 'oxdelcity', 'oxbillcity');
+        $deliveryAddressDto->company = $this->getStringFieldOrAlternative($order, 'oxdelcompany', 'oxbillcompany');
+        $deliveryAddressDto->firstname = $this->getStringFieldOrAlternative($order, 'oxdelfname', 'oxbillfname');
+        $deliveryAddressDto->lastname = $this->getStringFieldOrAlternative($order, 'oxdellname', 'oxbilllname');
+        $deliveryAddressDto->salutation = $this->getStringFieldOrAlternative($order, 'oxdelsal', 'oxbillsal');
+        $deliveryAddressDto->vatId = $this->getStringFieldOrAlternative($order, 'oxdelustid', 'oxbillustid');
+        $deliveryAddressDto->zipCode = $this->getStringFieldOrAlternative($order, 'oxdelzip', 'oxbillzip');
 
-        $countryId = $order->getFieldData("oxdelcountryid") ?: $order->getFieldData("oxbillcountryid");
-        if ($countryId != "") {
+        $countryId = $this->getStringFieldOrAlternative($order, 'oxdelcountryid', 'oxbillcountryid');
+        if ($countryId !== "") {
             $db = oxDb::getDb();
             $country = $db->getOne(
                 "SELECT oxcountry.oxisoalpha2 FROM oxcountry WHERE oxid = ?",
                 [$countryId]
             );
 
-            $deliveryAddressDto->country = strval($country) ?: null;
+            $deliveryAddressDto->country = strval($country) !== '' ? strval($country) : null;
         }
 
-        $stateId = $order->getFieldData("oxdelstateid") ?: $order->getFieldData("oxbillstateid");
-        if ($stateId != "") {
+        $stateId = $this->getStringFieldOrAlternative($order, 'oxdelstateid', 'oxbillstateid');
+        if ($stateId !== "") {
             $db = oxDb::getDb();
             $state = $db->getOne(
                 "SELECT oxstates.oxtitle FROM oxstates WHERE oxid = ?",
                 [$stateId]
             );
 
-            $deliveryAddressDto->region = strval($state) ?: null;
+            $deliveryAddressDto->region = strval($state) !== '' ? strval($state) : null;
         }
 
         return $deliveryAddressDto;
+    }
+
+    /**
+     * @param oxOrder $order
+     * @param string $fieldName
+     * @param string $altFieldName
+     * @return string|null
+     */
+    private function getStringFieldOrAlternative($order, $fieldName, $altFieldName)
+    {
+        $fieldValue = $this->getStringField($order, $fieldName);
+        if (is_null($fieldValue)) {
+            return $this->getStringField($order, $altFieldName);
+        }
+        return $fieldValue;
+    }
+
+    /**
+     * @param oxOrder $order
+     * @param string $fieldName
+     * @return string|null
+     */
+    private function getStringField($order, $fieldName)
+    {
+        $fieldValue = $order->getFieldData($fieldName);
+        if (!is_null($fieldValue)) {
+            return strval($fieldValue);
+        }
+        return null;
     }
 }

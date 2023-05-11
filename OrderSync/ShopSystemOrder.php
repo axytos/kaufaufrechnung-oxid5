@@ -100,7 +100,7 @@ class ShopSystemOrder implements ShopSystemOrderInterface
      */
     public function hasBeenInvoiced()
     {
-        return !empty($this->order->getFieldData("oxbillnr"));
+        return strval($this->order->getFieldData("oxbillnr")) !== '';
     }
 
     /**
@@ -214,9 +214,9 @@ class ShopSystemOrder implements ShopSystemOrderInterface
         $sendDateRaw = $this->order->getFieldData("oxsenddate");
         $sendDate = $dateUtils->formatDBDate($sendDateRaw, true);
 
-        return $sendDate != "0000-00-00 00:00:00" &&
-            $sendDate != "-" &&
-            !empty($sendDate);
+        return $sendDate !== "0000-00-00 00:00:00" &&
+            $sendDate !== "-" &&
+            $sendDate !== '';
     }
 
     /**

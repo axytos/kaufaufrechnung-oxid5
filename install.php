@@ -15,7 +15,7 @@ $vendorMetadataContent = <<<EOF
 \$sVendorMetadataVersion = '1.0';
 EOF;
 
-if (!file_put_contents($vendorMetadataPath, $vendorMetadataContent)) {
+if (file_put_contents($vendorMetadataPath, $vendorMetadataContent) === false) {
     exit(1);
 }
 

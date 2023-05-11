@@ -49,7 +49,7 @@ class AxytosPaymentList extends AxytosPaymentList_parent
                 return parent::getPaymentList($sShipSetId, $dPrice, $oUser);
             } catch (\Throwable $th) {
                 return [];
-            } catch (\Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
+            } catch (\Exception $th) {
                 return [];
             }
         }

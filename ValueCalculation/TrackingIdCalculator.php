@@ -14,7 +14,7 @@ class TrackingIdCalculator
     {
         $trackingCode = strval($order->getFieldData("oxtrackcode"));
 
-        if (!empty($trackingCode)) {
+        if ($trackingCode !== '') {
             return [$trackingCode];
         }
 

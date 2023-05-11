@@ -34,7 +34,7 @@ class TrackingIdCalculatorTest extends TestCase
         $result = $this->sut->calculate($order);
 
         $this->assertTrue(is_array($result));
-        $this->assertTrue(empty($result));
+        $this->assertTrue($result === []);
     }
 
     /**
@@ -49,7 +49,7 @@ class TrackingIdCalculatorTest extends TestCase
         $result = $this->sut->calculate($order);
 
         $this->assertTrue(is_array($result));
-        $this->assertTrue(empty($result));
+        $this->assertTrue($result === []);
     }
 
     /**

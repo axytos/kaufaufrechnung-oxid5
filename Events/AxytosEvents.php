@@ -170,7 +170,7 @@ class AxytosEvents
             [$tableName, $columnName]
         );
 
-        if (!empty($row)) {
+        if ($row !== []) {
             return;
         }
 
@@ -182,10 +182,7 @@ class AxytosEvents
      */
     private static function addPaymentMethod()
     {
-        /**
-         * @var oxDbMetaDataHandler
-         * @phpstan-ignore-next-line
-         */
+        /** @var oxDbMetaDataHandler */
         $metaDataHandler = oxNew(oxDbMetaDataHandler::class);
 
         /** @var oxPayment */
@@ -211,22 +208,18 @@ class AxytosEvents
 
             $languages = oxRegistry::getLang()->getAllShopLanguageIds();
 
-            if (in_array("de", $languages)) {
-                $lang = strval(array_search("de", $languages));
+            if (in_array("de", $languages, true)) {
+                $lang = strval(array_search("de", $languages, true));
                 $payment->setLanguage($lang);
-                /** @phpstan-ignore-next-line */
                 $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_DE_DESC);
-                /** @phpstan-ignore-next-line */
                 $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_DE_LONG_DESC);
                 $payment->save();
             }
 
-            if (in_array("en", $languages)) {
-                $lang = strval(array_search("en", $languages));
+            if (in_array("en", $languages, true)) {
+                $lang = strval(array_search("en", $languages, true));
                 $payment->setLanguage($lang);
-                /** @phpstan-ignore-next-line */
                 $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_EN_DESC);
-                /** @phpstan-ignore-next-line */
                 $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_EN_LONG_DESC);
                 $payment->save();
             }
