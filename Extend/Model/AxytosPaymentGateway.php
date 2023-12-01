@@ -4,6 +4,7 @@ use Axytos\ECommerce\Clients\Invoice\InvoiceClientInterface;
 use Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator;
 use Axytos\ECommerce\Clients\Invoice\ShopActions;
 use Axytos\ECommerce\OrderSync\OrderHashCalculator;
+use Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration;
 use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory;
 use Axytos\KaufAufRechnung_OXID5\Core\OrderCheckProcessStateMachine;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
@@ -38,6 +39,10 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
      * @var \Axytos\ECommerce\OrderSync\OrderHashCalculator
      */
     private $orderHashCalculator;
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration
+     */
+    private $pluginConfiguration;
 
     public function __construct()
     {
@@ -48,6 +53,7 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
         $this->invoiceOrderContextFactory = $this->getServiceFromContainer(InvoiceOrderContextFactory::class);
         $this->orderCheckProcessStateMachine = $this->getServiceFromContainer(OrderCheckProcessStateMachine::class);
         $this->orderHashCalculator = $this->getServiceFromContainer(OrderHashCalculator::class);
+        $this->pluginConfiguration = $this->getServiceFromContainer(PluginConfiguration::class);
     }
 
     /**
@@ -59,11 +65,13 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
         $order = $oOrder;
         $session = oxRegistry::getSession();
         $sessionVariableKey = AxytosEvents::PAYMENT_METHOD_ID . '_error_id';
+        $sessionVariableErrorMessage = AxytosEvents::PAYMENT_METHOD_ID . '_error_message';
 
         if ($order->getPaymentType()->getFieldData("oxpaymentsid") !== AxytosEvents::PAYMENT_METHOD_ID) {
             $success = parent::executePayment($amount, $order);
             if ($success) {
                 $session->deleteVariable($sessionVariableKey);
+                $session->deleteVariable($sessionVariableErrorMessage);
             }
             return $success;
         }
@@ -82,8 +90,14 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
                 $config = oxRegistry::getConfig();
                 $utils = oxRegistry::getUtils();
                 $order->delete();
+
                 $session->setVariable($sessionVariableKey, $shopAction);
-                $utils->redirect($config->getSslShopUrl() . 'index.php?cl=payment&' . AxytosEvents::PAYMENT_METHOD_ID . '_error_id=' . ShopActions::CHANGE_PAYMENT_METHOD, false);
+                $customErrorMessage = $this->pluginConfiguration->getCustomErrorMessage();
+                if (!is_null($customErrorMessage)) {
+                    $session->setVariable($sessionVariableErrorMessage, $customErrorMessage);
+                }
+
+                $utils->redirect($config->getSslShopUrl() . 'index.php?cl=payment&' . AxytosEvents::PAYMENT_METHOD_ID . '_error_id=' . $shopAction, false);
                 return false;
             } else {
                 $order->initializeOrderNumber();

@@ -2,7 +2,11 @@
 [{if $sPaymentID == "axytos_kaufaufrechnung"}]
     [{if $smarty.session.axytos_kaufaufrechnung_error_id === 'CHANGE_PAYMENT_METHOD' && $smarty.get.axytos_kaufaufrechnung_error_id === 'CHANGE_PAYMENT_METHOD'}]
         <div class="well well-sm" style="background: #fcf8e3;">
-            [{oxmultilang ident="axytos_kaufaufrechnung_payment_rejected_message"}]
+            [{if is_string($smarty.session.axytos_kaufaufrechnung_error_message)}]
+                [{$smarty.session.axytos_kaufaufrechnung_error_message}]
+            [{else}]
+                [{oxmultilang ident="axytos_kaufaufrechnung_payment_rejected_message"}]
+            [{/if}]
         </div>
     [{/if}]
     [{if $smarty.session.axytos_kaufaufrechnung_error_id !== 'CHANGE_PAYMENT_METHOD'}]
