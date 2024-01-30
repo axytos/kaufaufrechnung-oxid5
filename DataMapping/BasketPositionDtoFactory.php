@@ -33,15 +33,18 @@ class BasketPositionDtoFactory
      */
     public function createShippingPosition($order)
     {
+        $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
+        $deliveryTax = floatval($order->getFieldData("oxdelvat"));
+
         $position = new BasketPositionDto();
         $position->productId = '0';
         $position->productName = 'Shipping';
         $position->quantity = 1;
-        $position->grossPositionTotal = floatval($order->getFieldData("oxdelcost"));
-        $position->netPositionTotal = round(floatval($order->getFieldData("oxdelcost")) * floatval($order->getFieldData("oxdelvat")) / 100, 2);
-        $position->taxPercent = floatval($order->getFieldData("oxdelvat"));
-        $position->netPricePerUnit = round(floatval($order->getFieldData("oxdelcost")) * floatval($order->getFieldData("oxdelvat")) / 100, 2);
-        $position->grossPricePerUnit = floatval($order->getFieldData("oxdelcost"));
+        $position->grossPositionTotal = $grossDeliveryCosts;
+        $position->netPositionTotal = round($grossDeliveryCosts * (1 - $deliveryTax / 100), 2);
+        $position->taxPercent = $deliveryTax;
+        $position->netPricePerUnit = $position->netPositionTotal;
+        $position->grossPricePerUnit = $position->grossPositionTotal;
         return $position;
     }
 }
