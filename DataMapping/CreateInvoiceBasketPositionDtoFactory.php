@@ -3,11 +3,23 @@
 namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDto;
+use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
 use oxOrder;
 use oxOrderArticle;
 
 class CreateInvoiceBasketPositionDtoFactory
 {
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator
+     */
+    private $shippingCostCalculator;
+
+    public function __construct(
+        ShippingCostCalculator $shippingCostCalculator
+    ) {
+        $this->shippingCostCalculator = $shippingCostCalculator;
+    }
+
     /**
      * @param oxOrderArticle $orderArticle
      * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDto
@@ -33,15 +45,18 @@ class CreateInvoiceBasketPositionDtoFactory
      */
     public function createShippingPosition($order)
     {
+        $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
+        $deliveryTax = floatval($order->getFieldData("oxdelvat"));
+
         $position = new CreateInvoiceBasketPositionDto();
         $position->productId = '0';
         $position->productName = 'Shipping';
         $position->quantity = 1;
-        $position->taxPercent = floatval($order->getFieldData("oxdelvat"));
-        $position->netPricePerUnit = round(floatval($order->getFieldData("oxdelcost")) * floatval($order->getFieldData("oxdelvat")) / 100, 2);
-        $position->grossPricePerUnit = floatval($order->getFieldData("oxdelcost"));
-        $position->netPositionTotal = round(floatval($order->getFieldData("oxdelcost")) * floatval($order->getFieldData("oxdelvat")) / 100, 2);
-        $position->grossPositionTotal = floatval($order->getFieldData("oxdelcost"));
+        $position->grossPositionTotal = $grossDeliveryCosts;
+        $position->netPositionTotal = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
+        $position->taxPercent = $deliveryTax;
+        $position->netPricePerUnit = $position->netPositionTotal;
+        $position->grossPricePerUnit = $position->grossPositionTotal;
         return $position;
     }
 }

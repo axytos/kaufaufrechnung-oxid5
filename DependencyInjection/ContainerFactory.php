@@ -54,6 +54,7 @@ use Axytos\KaufAufRechnung_OXID5\OrderSync\ShopSystemOrderFactory;
 use Axytos\KaufAufRechnung_OXID5\OrderSync\ShopSystemOrderRepository;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\DeliveryWeightCalculator;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
+use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator;
 
 class ContainerFactory
@@ -146,16 +147,20 @@ class ContainerFactory
                 $container->get(CreateInvoiceBasketPositionDtoFactory::class)
             );
         });
-        $containerBuilder->registerFactory(CreateInvoiceBasketPositionDtoFactory::class, function () {
-            return new CreateInvoiceBasketPositionDtoFactory();
+        $containerBuilder->registerFactory(CreateInvoiceBasketPositionDtoFactory::class, function ($container) {
+            return new CreateInvoiceBasketPositionDtoFactory(
+                $container->get(ShippingCostCalculator::class)
+            );
         });
         $containerBuilder->registerFactory(CreateInvoiceTaxGroupDtoCollectionFactory::class, function ($container) {
             return new CreateInvoiceTaxGroupDtoCollectionFactory(
                 $container->get(CreateInvoiceTaxGroupDtoFactory::class)
             );
         });
-        $containerBuilder->registerFactory(CreateInvoiceTaxGroupDtoFactory::class, function () {
-            return new CreateInvoiceTaxGroupDtoFactory();
+        $containerBuilder->registerFactory(CreateInvoiceTaxGroupDtoFactory::class, function ($container) {
+            return new CreateInvoiceTaxGroupDtoFactory(
+                $container->get(ShippingCostCalculator::class)
+            );
         });
         $containerBuilder->registerFactory(CustomerDataDtoFactory::class, function () {
             return new CustomerDataDtoFactory();
@@ -176,8 +181,10 @@ class ContainerFactory
                 $container->get(BasketPositionDtoFactory::class)
             );
         });
-        $containerBuilder->registerFactory(BasketPositionDtoFactory::class, function () {
-            return new BasketPositionDtoFactory();
+        $containerBuilder->registerFactory(BasketPositionDtoFactory::class, function ($container) {
+            return new BasketPositionDtoFactory(
+                $container->get(ShippingCostCalculator::class)
+            );
         });
         $containerBuilder->registerFactory(ApiHostProviderInterface::class, function ($container) {
             return $container->get(ApiHostProvider::class);
@@ -236,6 +243,9 @@ class ContainerFactory
         });
         $containerBuilder->registerFactory(TrackingIdCalculator::class, function () {
             return new TrackingIdCalculator();
+        });
+        $containerBuilder->registerFactory(ShippingCostCalculator::class, function () {
+            return new ShippingCostCalculator();
         });
         $containerBuilder->registerFactory(OrderRepository::class, function ($container) {
             return new OrderRepository();

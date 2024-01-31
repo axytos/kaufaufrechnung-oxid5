@@ -3,11 +3,23 @@
 namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto;
+use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
 use oxOrder;
 use oxOrderArticle;
 
 class CreateInvoiceTaxGroupDtoFactory
 {
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator
+     */
+    private $shippingCostCalculator;
+
+    public function __construct(
+        ShippingCostCalculator $shippingCostCalculator
+    ) {
+        $this->shippingCostCalculator = $shippingCostCalculator;
+    }
+
     /**
      * @param oxOrderArticle $orderArticle
      * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto
@@ -28,10 +40,13 @@ class CreateInvoiceTaxGroupDtoFactory
      */
     public function createShippingPosition($order)
     {
+        $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
+        $deliveryTax = floatval($order->getFieldData("oxdelvat"));
+
         $taxGroup = new CreateInvoiceTaxGroupDto();
-        $taxGroup->total = floatval($order->getFieldData("oxdelcost"));
-        $taxGroup->valueToTax = round(floatval($order->getFieldData("oxdelcost")) * (1 - floatval($order->getFieldData("oxdelvat")) / 100), 2);
-        $taxGroup->taxPercent = floatval($order->getFieldData("oxdelvat"));
+        $taxGroup->total = $grossDeliveryCosts;
+        $taxGroup->valueToTax = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
+        $taxGroup->taxPercent = $deliveryTax;
 
         return $taxGroup;
     }
