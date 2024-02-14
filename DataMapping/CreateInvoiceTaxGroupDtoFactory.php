@@ -44,8 +44,8 @@ class CreateInvoiceTaxGroupDtoFactory
         $deliveryTax = floatval($order->getFieldData("oxdelvat"));
 
         $taxGroup = new CreateInvoiceTaxGroupDto();
-        $taxGroup->total = $grossDeliveryCosts;
         $taxGroup->valueToTax = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
+        $taxGroup->total = round($grossDeliveryCosts - $taxGroup->valueToTax, 2);
         $taxGroup->taxPercent = $deliveryTax;
 
         return $taxGroup;

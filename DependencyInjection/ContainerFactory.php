@@ -139,7 +139,8 @@ class ContainerFactory
         $containerBuilder->registerFactory(CreateInvoiceBasketDtoFactory::class, function ($container) {
             return new CreateInvoiceBasketDtoFactory(
                 $container->get(CreateInvoiceBasketPositionDtoCollectionFactory::class),
-                $container->get(CreateInvoiceTaxGroupDtoCollectionFactory::class)
+                $container->get(CreateInvoiceTaxGroupDtoCollectionFactory::class),
+                $container->get(ShippingCostCalculator::class)
             );
         });
         $containerBuilder->registerFactory(CreateInvoiceBasketPositionDtoCollectionFactory::class, function ($container) {
@@ -173,7 +174,8 @@ class ContainerFactory
         });
         $containerBuilder->registerFactory(BasketDtoFactory::class, function ($container) {
             return new BasketDtoFactory(
-                $container->get(BasketPositionDtoCollectionFactory::class)
+                $container->get(BasketPositionDtoCollectionFactory::class),
+                $container->get(ShippingCostCalculator::class)
             );
         });
         $containerBuilder->registerFactory(BasketPositionDtoCollectionFactory::class, function ($container) {
