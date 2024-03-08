@@ -26,9 +26,12 @@ class CreateInvoiceTaxGroupDtoFactory
      */
     public function create($orderArticle)
     {
+        $brutPrice = floatval($orderArticle->getFieldData("oxbrutprice"));
+        $netPrice = floatval($orderArticle->getFieldData("oxnetprice"));
+
         $taxGroup = new CreateInvoiceTaxGroupDto();
-        $taxGroup->total = floatval($orderArticle->getFieldData("oxbrutprice"));
-        $taxGroup->valueToTax = floatval($orderArticle->getFieldData("oxnetprice"));
+        $taxGroup->valueToTax = $netPrice;
+        $taxGroup->total = round($brutPrice - $netPrice, 2);
         $taxGroup->taxPercent = floatval($orderArticle->getFieldData("oxvat"));
 
         return $taxGroup;
@@ -49,5 +52,34 @@ class CreateInvoiceTaxGroupDtoFactory
         $taxGroup->taxPercent = $deliveryTax;
 
         return $taxGroup;
+    }
+
+    /**
+     * @param oxOrder $order
+     * @param \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto[] $taxGroups
+     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto|null
+     */
+    public function createVoucherPosition($order, $taxGroups)
+    {
+        $voucherDiscountGross = -floatval($order->getFieldData("oxvoucherdiscount"));
+        if ($voucherDiscountGross === 0.0) {
+            return null;
+        }
+
+        $valueToTaxSum = array_sum(array_map(
+            function (CreateInvoiceTaxGroupDto $dto) {
+                return $dto->valueToTax;
+            },
+            $taxGroups
+        ));
+        $voucherDiscountNet = round(floatval($order->getFieldData("oxtotalnetsum")) - $valueToTaxSum, 2);
+
+        $voucherTaxPercent = round((($voucherDiscountGross / $voucherDiscountNet) - 1) * 100);
+
+        $position = new CreateInvoiceTaxGroupDto();
+        $position->valueToTax = $voucherDiscountNet;
+        $position->taxPercent = $voucherTaxPercent;
+        $position->total = round($voucherDiscountGross - $voucherDiscountNet, 2);
+        return $position;
     }
 }

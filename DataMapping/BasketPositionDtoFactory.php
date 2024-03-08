@@ -59,4 +59,38 @@ class BasketPositionDtoFactory
         $position->grossPricePerUnit = $position->grossPositionTotal;
         return $position;
     }
+
+    /**
+     * @param oxOrder $order
+     * @param \Axytos\ECommerce\DataTransferObjects\BasketPositionDto[] $positions
+     * @return \Axytos\ECommerce\DataTransferObjects\BasketPositionDto|null
+     */
+    public function createVoucherPosition($order, $positions)
+    {
+        $voucherDiscountGross = -floatval($order->getFieldData("oxvoucherdiscount"));
+        if ($voucherDiscountGross === 0.0) {
+            return null;
+        }
+
+        $netPosSum = array_sum(array_map(
+            function (BasketPositionDto $dto) {
+                return $dto->netPositionTotal;
+            },
+            $positions
+        ));
+        $voucherDiscountNet = round(floatval($order->getFieldData("oxtotalnetsum")) - $netPosSum, 2);
+
+        $voucherTaxPercent = round((($voucherDiscountGross / $voucherDiscountNet) - 1) * 100);
+
+        $position = new BasketPositionDto();
+        $position->productId = 'oxvoucherdiscount';
+        $position->productName = 'Voucher';
+        $position->quantity = 1;
+        $position->grossPositionTotal = $voucherDiscountGross;
+        $position->netPositionTotal = $voucherDiscountNet;
+        $position->taxPercent = $voucherTaxPercent;
+        $position->netPricePerUnit = $position->netPositionTotal;
+        $position->grossPricePerUnit = $position->grossPositionTotal;
+        return $position;
+    }
 }

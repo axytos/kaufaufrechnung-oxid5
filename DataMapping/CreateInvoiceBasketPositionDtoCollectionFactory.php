@@ -27,6 +27,12 @@ class CreateInvoiceBasketPositionDtoCollectionFactory
         /** @var oxList */
         $orderArticles = $order->getOrderArticles();
         $positions = array_map([$this->createInvoiceBasketPositionDtoFactory, 'create'], array_values($orderArticles->getArray()));
+
+        $voucherPosition = $this->createInvoiceBasketPositionDtoFactory->createVoucherPosition($order, $positions);
+        if (!is_null($voucherPosition)) {
+            array_push($positions, $voucherPosition);
+        }
+
         $shippingPosition = $this->createInvoiceBasketPositionDtoFactory->createShippingPosition($order);
         array_push($positions, $shippingPosition);
 

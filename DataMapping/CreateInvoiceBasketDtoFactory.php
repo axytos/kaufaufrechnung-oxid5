@@ -42,11 +42,12 @@ class CreateInvoiceBasketDtoFactory
         $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
         $deliveryTax = floatval($order->getFieldData("oxdelvat"));
         $netDeliveryCosts = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
+        $voucherDiscount = floatval($order->getFieldData("oxvoucherdiscount"));
 
         $basket = new CreateInvoiceBasketDto();
         $basket->positions = $this->createInvoiceBasketPositionDtoCollectionFactory->create($order);
         $basket->taxGroups = $this->createInvoiceTaxGroupDtoCollectionFactory->create($order);
-        $basket->grossTotal = floatval($order->getFieldData("oxtotalbrutsum")) + $grossDeliveryCosts;
+        $basket->grossTotal = floatval($order->getFieldData("oxtotalbrutsum")) + $grossDeliveryCosts - $voucherDiscount;
         $basket->netTotal = floatval($order->getFieldData("oxtotalnetsum")) + $netDeliveryCosts;
         return $basket;
     }

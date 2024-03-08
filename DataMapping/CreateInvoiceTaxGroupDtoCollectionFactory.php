@@ -28,6 +28,12 @@ class CreateInvoiceTaxGroupDtoCollectionFactory
         /** @var oxList */
         $orderArticles = $order->getOrderArticles();
         $positionTaxValues = array_map([$this->createInvoiceTaxGroupDtoFactory, 'create'], $orderArticles->getArray());
+
+        $voucherPosition = $this->createInvoiceTaxGroupDtoFactory->createVoucherPosition($order, $positionTaxValues);
+        if (!is_null($voucherPosition)) {
+            $positionTaxValues[] = $voucherPosition;
+        }
+
         $positionTaxValues[] = $this->createInvoiceTaxGroupDtoFactory->createShippingPosition($order);
 
         $taxGroups = array_values(

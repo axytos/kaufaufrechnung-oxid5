@@ -35,10 +35,11 @@ class BasketDtoFactory
         $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
         $deliveryTax = floatval($order->getFieldData("oxdelvat"));
         $netDeliveryCosts = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
+        $voucherDiscount = floatval($order->getFieldData("oxvoucherdiscount"));
 
         $basket = new BasketDto();
         $basket->currency = strval($order->getFieldData("oxcurrency"));
-        $basket->grossTotal = floatval($order->getFieldData("oxtotalbrutsum")) + $grossDeliveryCosts;
+        $basket->grossTotal = floatval($order->getFieldData("oxtotalbrutsum")) + $grossDeliveryCosts - $voucherDiscount;
         $basket->netTotal = floatval($order->getFieldData("oxtotalnetsum")) + $netDeliveryCosts;
         $basket->positions = $this->basketPositionDtoCollectionFactory->create($order);
         return $basket;
