@@ -73,8 +73,14 @@ class CreateInvoiceTaxGroupDtoFactory
             $taxGroups
         ));
         $voucherDiscountNet = round(floatval($order->getFieldData("oxtotalnetsum")) - $valueToTaxSum, 2);
+        if (!is_finite($voucherDiscountNet)) {
+            $voucherDiscountNet = 0;
+        }
 
         $voucherTaxPercent = round((($voucherDiscountGross / $voucherDiscountNet) - 1) * 100);
+        if (!is_finite($voucherTaxPercent)) {
+            $voucherTaxPercent = 0;
+        }
 
         $position = new CreateInvoiceTaxGroupDto();
         $position->valueToTax = $voucherDiscountNet;

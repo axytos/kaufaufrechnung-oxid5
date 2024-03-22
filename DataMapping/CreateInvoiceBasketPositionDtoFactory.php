@@ -79,8 +79,14 @@ class CreateInvoiceBasketPositionDtoFactory
             $positions
         ));
         $voucherDiscountNet = round(floatval($order->getFieldData("oxtotalnetsum")) - $netPosSum, 2);
+        if (!is_finite($voucherDiscountNet)) {
+            $voucherDiscountNet = 0;
+        }
 
         $voucherTaxPercent = round((($voucherDiscountGross / $voucherDiscountNet) - 1) * 100);
+        if (!is_finite($voucherTaxPercent)) {
+            $voucherTaxPercent = 0;
+        }
 
         $position = new CreateInvoiceBasketPositionDto();
         $position->productId = 'oxvoucherdiscount';
