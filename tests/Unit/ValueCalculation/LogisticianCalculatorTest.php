@@ -5,6 +5,7 @@ namespace Axytos\KaufAufRechnung_OXID5\Tests\Unit\ValueCalculation;
 use Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
 use oxOrder;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -24,6 +25,7 @@ class LogisticianCalculatorTest extends TestCase
      * @before
      * @return void
      */
+    #[Before]
     public function beforeEach()
     {
         $this->orderRepository = $this->createMock(OrderRepository::class);
