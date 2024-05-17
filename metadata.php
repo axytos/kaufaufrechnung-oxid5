@@ -25,7 +25,7 @@ $aModule = array(
         "en" => "You conveniently pay the invoice as soon as you receive the goods, within the payment period",
     ],
     "thumbnail"   => "assets/img/logo.png",
-    "version"     => "1.6.4",
+    "version"     => "1.6.5",
     "author"      => "axytos GmbH",
     "url"         => "https://www.axytos.com",
     "email"       => "info@axytos.com",
@@ -43,6 +43,7 @@ $aModule = array(
     ],
     "files" => [
         "axytos_kaufaufrechnung_credit_check_agreement" => $controllerDirectory . "axytos_kaufaufrechnung_credit_check_agreement.php",
+        "axytos_kaufaufrechnung_action_callback"        => $controllerDirectory . "axytos_kaufaufrechnung_action_callback.php",
     ],
     "settings"    => [
         [
