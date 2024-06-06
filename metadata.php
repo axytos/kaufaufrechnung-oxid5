@@ -43,7 +43,6 @@ $aModule = array(
     ],
     "files" => [
         "axytos_kaufaufrechnung_credit_check_agreement" => $controllerDirectory . "axytos_kaufaufrechnung_credit_check_agreement.php",
-        "axytos_kaufaufrechnung_action_callback"        => $controllerDirectory . "axytos_kaufaufrechnung_action_callback.php",
     ],
     "settings"    => [
         [

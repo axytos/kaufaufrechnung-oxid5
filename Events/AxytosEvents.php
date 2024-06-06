@@ -4,7 +4,6 @@ namespace Axytos\KaufAufRechnung_OXID5\Events;
 
 use Axytos\KaufAufRechnung_OXID5\DependencyInjection\ContainerFactory;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
-use OxidEsales\Eshop\Application\Model\Payment;
 use oxDb;
 use oxDbMetaDataHandler;
 use oxField;
@@ -19,13 +18,6 @@ class AxytosEvents
     const PAYMENT_METHOD_DE_LONG_DESC = "Sie zahlen bequem die Rechnung, sobald Sie die Ware erhalten haben, innerhalb der Zahlfrist";
     const PAYMENT_METHOD_EN_DESC = "Buy Now Pay Later";
     const PAYMENT_METHOD_EN_LONG_DESC = "You conveniently pay the invoice as soon as you receive the goods, within the payment period";
-    const PAYMENT_METHOD_FR_DESC = "Buy Now Pay Later";
-    const PAYMENT_METHOD_FR_LONG_DESC = "Vous payez la facture dès que vous recevez la marchandise, dans le délai de paiement.";
-    const PAYMENT_METHOD_NL_DESC = "Buy Now Pay Later";
-    const PAYMENT_METHOD_NL_LONG_DESC = "Je moet de factuur betalen zodra je de goederen hebt ontvangen, binnen de betalingstermijn.";
-    const PAYMENT_METHOD_ES_DESC = "Buy Now Pay Later";
-    const PAYMENT_METHOD_ES_LONG_DESC = "Pagas la factura convenientemente en cuanto has recibido la mercancía, dentro del plazo de pago.";
-
 
     public function __construct()
     {
@@ -67,12 +59,25 @@ class AxytosEvents
      */
     private static function createOrderColumns()
     {
+        self::addOrderCheckProcessStatus();
         self::addOrderPreCheckResult();
+        self::addCancelReported();
+        self::addCreateInvoiceReported();
         self::addShippingReported();
         self::addReportedTrackingCode();
         self::addOrderBasketHash();
-        self::addOrderState();
-        self::addOrderStateData();
+    }
+
+    /**
+     * @return void
+     */
+    private static function addOrderCheckProcessStatus()
+    {
+        self::addTableColumn(
+            "oxorder",
+            "AXYTOSKAUFAUFRECHNUNGORDERCHECKPROCESSSTATUS",
+            "VARCHAR(128) DEFAULT 'UNCHECKED'"
+        );
     }
 
     /**
@@ -84,6 +89,30 @@ class AxytosEvents
             "oxorder",
             "AXYTOSKAUFAUFRECHNUNGORDERPRECHECKRESULT",
             "TEXT"
+        );
+    }
+
+    /**
+     * @return void
+     */
+    private static function addCancelReported()
+    {
+        self::addTableColumn(
+            "oxorder",
+            "AXYTOSKAUFAUFRECHNUNGCANCELREPORTED",
+            "TINYINT(1) NOT NULL DEFAULT 0"
+        );
+    }
+
+    /**
+     * @return void
+     */
+    private static function addCreateInvoiceReported()
+    {
+        self::addTableColumn(
+            "oxorder",
+            "AXYTOSKAUFAUFRECHNUNGCREATEINVOICEREPORTED",
+            "TINYINT(1) NOT NULL DEFAULT 0"
         );
     }
 
@@ -119,31 +148,7 @@ class AxytosEvents
         self::addTableColumn(
             "oxorder",
             "AXYTOSKAUFAUFRECHNUNGORDERBASKETHASH",
-            "VARCHAR(64) NOT NULL DEFAULT ''" // possible hash sha256 with 64 chars, but not sha512!
-        );
-    }
-
-    /**
-     * @return void
-     */
-    private static function addOrderState()
-    {
-        self::addTableColumn(
-            "oxorder",
-            "AXYTOSKAUFAUFRECHNUNGORDERSTATE",
-            "TEXT"
-        );
-    }
-
-    /**
-     * @return void
-     */
-    private static function addOrderStateData()
-    {
-        self::addTableColumn(
-            "oxorder",
-            "AXYTOSKAUFAUFRECHNUNGORDERSTATEDATA",
-            "TEXT"
+            "VARCHAR(64) NOT NULL DEFAULT ''"
         );
     }
 
@@ -171,7 +176,6 @@ class AxytosEvents
 
         $database->execute("ALTER TABLE $tableName ADD COLUMN $columnName $definition");
     }
-
 
     /**
      * @return void
@@ -201,58 +205,24 @@ class AxytosEvents
             /** @phpstan-ignore-next-line */
             $payment->oxpayments__oxtoamount = new oxField(1000000);
             $payment->save();
-        }
 
-        $languages = oxRegistry::getLang()->getAllShopLanguageIds();
+            $languages = oxRegistry::getLang()->getAllShopLanguageIds();
 
-        if (in_array("de", $languages, true)) {
-            $lang = strval(array_search("de", $languages, true));
-            $payment->setLanguage($lang);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_DE_DESC);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_DE_LONG_DESC);
-            $payment->save();
-        }
+            if (in_array("de", $languages, true)) {
+                $lang = strval(array_search("de", $languages, true));
+                $payment->setLanguage($lang);
+                $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_DE_DESC);
+                $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_DE_LONG_DESC);
+                $payment->save();
+            }
 
-        if (in_array("en", $languages, true)) {
-            $lang = strval(array_search("en", $languages, true));
-            $payment->setLanguage($lang);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_EN_DESC);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_EN_LONG_DESC);
-            $payment->save();
-        }
-
-        if (in_array("fr", $languages, true)) {
-            $lang = strval(array_search("fr", $languages, true));
-            $payment->setLanguage($lang);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_FR_DESC);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_FR_LONG_DESC);
-            $payment->save();
-        }
-
-        if (in_array("nl", $languages, true)) {
-            $lang = strval(array_search("nl", $languages, true));
-            $payment->setLanguage($lang);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_NL_DESC);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_NL_LONG_DESC);
-            $payment->save();
-        }
-
-        if (in_array("es", $languages, true)) {
-            $lang = strval(array_search("es", $languages, true));
-            $payment->setLanguage($lang);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_ES_DESC);
-            /** @phpstan-ignore-next-line */
-            $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_ES_LONG_DESC);
-            $payment->save();
+            if (in_array("en", $languages, true)) {
+                $lang = strval(array_search("en", $languages, true));
+                $payment->setLanguage($lang);
+                $payment->oxpayments__oxdesc = new oxField(self::PAYMENT_METHOD_EN_DESC);
+                $payment->oxpayments__oxlongdesc = new oxField(self::PAYMENT_METHOD_EN_LONG_DESC);
+                $payment->save();
+            }
         }
 
         $metaDataHandler->updateViews();
@@ -263,8 +233,8 @@ class AxytosEvents
      */
     private static function disablePaymentMethod()
     {
-        /** @var Payment */
-        $payment = oxNew(Payment::class);
+        /** @var oxPayment */
+        $payment = oxNew(oxPayment::class);
         if ($payment->load(self::PAYMENT_METHOD_ID)) {
             /** @phpstan-ignore-next-line */
             $payment->oxpayments__oxactive = new oxField(0);

@@ -3,22 +3,16 @@
 namespace Axytos\KaufAufRechnung_OXID5\Core;
 
 use Axytos\ECommerce\Clients\Invoice\InvoiceOrderContextInterface;
-use Axytos\ECommerce\DataTransferObjects\BasketDto;
-use Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketDto;
-use Axytos\ECommerce\DataTransferObjects\CustomerDataDto;
-use Axytos\ECommerce\DataTransferObjects\DeliveryAddressDto;
-use Axytos\ECommerce\DataTransferObjects\InvoiceAddressDto;
 use Axytos\ECommerce\DataTransferObjects\RefundBasketDto;
 use Axytos\ECommerce\DataTransferObjects\ReturnPositionModelDtoCollection;
-use Axytos\ECommerce\DataTransferObjects\ShippingBasketPositionDtoCollection;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketDtoFactory;
-use Axytos\KaufAufRechnung_OXID5\DataMapping\ShippingBasketPositionDtoCollectionFactory;
-use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
-use Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\CustomerDataDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\DeliveryAddressDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\InvoiceAddressDtoFactory;
+use Axytos\KaufAufRechnung_OXID5\DataMapping\ShippingBasketPositionDtoCollectionFactory;
+use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
+use Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator;
 use DateTimeImmutable;
 use DateTimeInterface;
 use oxField;
@@ -148,8 +142,6 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
      */
     public function getRefundBasket()
     {
-        // should never be triggered!
-        // refunds are currently not a supported feature for oxid
         return new RefundBasketDto();
     }
 

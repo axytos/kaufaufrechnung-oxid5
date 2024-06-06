@@ -4,7 +4,7 @@ namespace Axytos\KaufAufRechnung_OXID5\OrderSync;
 
 use Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator;
 use Axytos\ECommerce\Logging\LoggerAdapterInterface;
-use Axytos\KaufAufRechnung\Core\OrderSyncWorker;
+use Axytos\ECommerce\OrderSync\OrderSyncWorker;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 
 class OrderSyncCronJob

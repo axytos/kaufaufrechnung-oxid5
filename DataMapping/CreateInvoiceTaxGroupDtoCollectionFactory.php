@@ -20,19 +20,18 @@ class CreateInvoiceTaxGroupDtoCollectionFactory
     }
 
     /**
-     * @param \oxOrder $order
+     * @param oxOrder $order
      * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDtoCollection
      */
     public function create($order)
     {
         /** @var oxList */
         $orderArticles = $order->getOrderArticles();
-
         $positionTaxValues = array_map([$this->createInvoiceTaxGroupDtoFactory, 'create'], $orderArticles->getArray());
 
-        $voucherTaxGroup = $this->createInvoiceTaxGroupDtoFactory->createVoucherPosition($order);
-        if (!is_null($voucherTaxGroup)) {
-            $positionTaxValues[] = $voucherTaxGroup;
+        $voucherPosition = $this->createInvoiceTaxGroupDtoFactory->createVoucherPosition($order, $positionTaxValues);
+        if (!is_null($voucherPosition)) {
+            $positionTaxValues[] = $voucherPosition;
         }
 
         $positionTaxValues[] = $this->createInvoiceTaxGroupDtoFactory->createShippingPosition($order);

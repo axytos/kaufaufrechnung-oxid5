@@ -4,6 +4,8 @@ namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\BasketPositionDto;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
+use oxOrder;
+use oxOrderArticle;
 
 class BasketPositionDtoFactory
 {
@@ -19,7 +21,7 @@ class BasketPositionDtoFactory
     }
 
     /**
-     * @param \oxOrderArticle $orderArticle
+     * @param oxOrderArticle $orderArticle
      * @return \Axytos\ECommerce\DataTransferObjects\BasketPositionDto
      */
     public function create($orderArticle)
@@ -38,7 +40,7 @@ class BasketPositionDtoFactory
     }
 
     /**
-     * @param \oxOrder $order
+     * @param oxOrder $order
      * @return \Axytos\ECommerce\DataTransferObjects\BasketPositionDto
      */
     public function createShippingPosition($order)
@@ -59,35 +61,40 @@ class BasketPositionDtoFactory
     }
 
     /**
-     * @param \oxOrder $order
+     * @param oxOrder $order
      * @param \Axytos\ECommerce\DataTransferObjects\BasketPositionDto[] $positions
      * @return \Axytos\ECommerce\DataTransferObjects\BasketPositionDto|null
      */
     public function createVoucherPosition($order, $positions)
     {
-        $isB2B = boolval($order->getFieldData('oxisnettomode'));
-
-        // the total monetary value of all applied vouchers
-        $totalVoucherDiscountForOrder = -1 * $order->getFieldData("oxvoucherdiscount");
-
-        if ($totalVoucherDiscountForOrder === 0.0) {
+        $voucherDiscountGross = -floatval($order->getFieldData("oxvoucherdiscount"));
+        if ($voucherDiscountGross === 0.0) {
             return null;
+        }
+
+        $netPosSum = array_sum(array_map(
+            function (BasketPositionDto $dto) {
+                return $dto->netPositionTotal;
+            },
+            $positions
+        ));
+        $voucherDiscountNet = round(floatval($order->getFieldData("oxtotalnetsum")) - $netPosSum, 2);
+        if (!is_finite($voucherDiscountNet)) {
+            $voucherDiscountNet = 0;
+        }
+
+        $voucherTaxPercent = round((($voucherDiscountGross / $voucherDiscountNet) - 1) * 100);
+        if (!is_finite($voucherTaxPercent)) {
+            $voucherTaxPercent = 0;
         }
 
         $position = new BasketPositionDto();
         $position->productId = 'oxvoucherdiscount';
         $position->productName = 'Voucher';
         $position->quantity = 1;
-        $position->taxPercent = 0;
-
-        if ($isB2B) {
-            $position->grossPositionTotal = 0;
-            $position->netPositionTotal = $totalVoucherDiscountForOrder;
-        } else {
-            $position->grossPositionTotal = $totalVoucherDiscountForOrder;
-            $position->netPositionTotal = 0;
-        }
-
+        $position->grossPositionTotal = $voucherDiscountGross;
+        $position->netPositionTotal = $voucherDiscountNet;
+        $position->taxPercent = $voucherTaxPercent;
         $position->netPricePerUnit = $position->netPositionTotal;
         $position->grossPricePerUnit = $position->grossPositionTotal;
         return $position;

@@ -3,25 +3,11 @@
 namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\DeliveryAddressDto;
-use Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository;
+use oxDb;
 use oxOrder;
 
 class DeliveryAddressDtoFactory
 {
-    /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository
-     */
-    private $orderRepository;
-
-    /**
-     * @param \Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository $orderRepository
-     * @return void
-     */
-    public function __construct($orderRepository)
-    {
-        $this->orderRepository = $orderRepository;
-    }
-
     /**
      * @param oxOrder $order
      * @return \Axytos\ECommerce\DataTransferObjects\DeliveryAddressDto
@@ -46,12 +32,24 @@ class DeliveryAddressDtoFactory
 
         $countryId = $this->getStringFieldOrAlternative($order, 'oxdelcountryid', 'oxbillcountryid');
         if ($countryId !== "") {
-            $deliveryAddressDto->country = $this->orderRepository->findDeliveryAddressCountryById($countryId);
+            $db = oxDb::getDb();
+            $country = $db->getOne(
+                "SELECT oxcountry.oxisoalpha2 FROM oxcountry WHERE oxid = ?",
+                [$countryId]
+            );
+
+            $deliveryAddressDto->country = strval($country) !== '' ? strval($country) : null;
         }
 
         $stateId = $this->getStringFieldOrAlternative($order, 'oxdelstateid', 'oxbillstateid');
         if ($stateId !== "") {
-            $deliveryAddressDto->region = $this->orderRepository->findDeliveryAddressStateById($stateId);
+            $db = oxDb::getDb();
+            $state = $db->getOne(
+                "SELECT oxstates.oxtitle FROM oxstates WHERE oxid = ?",
+                [$stateId]
+            );
+
+            $deliveryAddressDto->region = strval($state) !== '' ? strval($state) : null;
         }
 
         return $deliveryAddressDto;

@@ -3,25 +3,11 @@
 namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\InvoiceAddressDto;
-use Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository;
+use oxDb;
 use oxOrder;
 
 class InvoiceAddressDtoFactory
 {
-    /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository
-     */
-    private $orderRepository;
-
-    /**
-     * @param \Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository $orderRepository
-     * @return void
-     */
-    public function __construct($orderRepository)
-    {
-        $this->orderRepository = $orderRepository;
-    }
-
     /**
      * @param oxOrder $order
      * @return \Axytos\ECommerce\DataTransferObjects\InvoiceAddressDto
@@ -41,12 +27,24 @@ class InvoiceAddressDtoFactory
 
         $countryId = $order->getFieldData("oxbillcountryid");
         if ($countryId !== "") {
-            $invoiceAddressDto->country = $this->orderRepository->findInvoiceAddressCountryById($countryId);
+            $db = oxDb::getDb();
+            $country = $db->getOne(
+                "SELECT oxcountry.oxisoalpha2 FROM oxcountry WHERE oxid = ?",
+                [$countryId]
+            );
+
+            $invoiceAddressDto->country = strval($country) !== '' ? strval($country) : null;
         }
 
         $stateId = $order->getFieldData("oxbillstateid");
         if ($stateId !== "") {
-            $invoiceAddressDto->region = $this->orderRepository->findInvoiceAddressStateById($stateId);
+            $db = oxDb::getDb();
+            $state = $db->getOne(
+                "SELECT oxstates.oxtitle FROM oxstates WHERE oxid = ?",
+                [$stateId]
+            );
+
+            $invoiceAddressDto->region = strval($state) !== '' ? strval($state) : null;
         }
 
         return $invoiceAddressDto;

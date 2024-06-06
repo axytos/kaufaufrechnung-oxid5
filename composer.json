@@ -17,10 +17,7 @@
     "license": "proprietary",
     "require": {
         "php": ">=5.6.0",
-        "axytos/ecommerce-sdk": "dev-main",
-        "axytos/kaufaufrechnung-core": "dev-main",
-        "axytos/kaufaufrechnung-core-abstractions": "dev-main",
-        "axytos/kaufaufrechnung-core-plugin-abstractions": "dev-main"
+        "axytos/ecommerce-sdk": "dev-main"
     },
     "autoload": {
         "psr-4": {

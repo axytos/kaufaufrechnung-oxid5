@@ -1,10 +1,12 @@
 <?php
 
+use Axytos\ECommerce\Clients\Invoice\InvoiceClientInterface;
 use Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator;
-use Axytos\KaufAufRechnung\Core\Abstractions\Model\AxytosOrderCheckoutAction;
-use Axytos\KaufAufRechnung\Core\Model\AxytosOrderFactory;
-use Axytos\KaufAufRechnung_OXID5\Adapter\PluginOrderFactory;
+use Axytos\ECommerce\Clients\Invoice\ShopActions;
+use Axytos\ECommerce\OrderSync\OrderHashCalculator;
 use Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration;
+use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory;
+use Axytos\KaufAufRechnung_OXID5\Core\OrderCheckProcessStateMachine;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 use Axytos\KaufAufRechnung_OXID5\Events\AxytosEvents;
 use Axytos\KaufAufRechnung_OXID5\Extend\ServiceContainer;
@@ -14,36 +16,44 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
 {
     use ServiceContainer;
 
-    /**
-     * @phpstan-ignore-next-line
-     * @var \Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator
-     */
+    /** @phpstan-ignore-next-line
+     * @var \Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator */
     private $pluginConfigurationValidator;
+    /**
+     * @var \Axytos\ECommerce\Clients\Invoice\InvoiceClientInterface
+     */
+    private $invoiceClient;
     /**
      * @var \Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler
      */
     private $errorHandler;
     /**
+     * @var \Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory
+     */
+    private $invoiceOrderContextFactory;
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\Core\OrderCheckProcessStateMachine
+     */
+    private $orderCheckProcessStateMachine;
+    /**
+     * @var \Axytos\ECommerce\OrderSync\OrderHashCalculator
+     */
+    private $orderHashCalculator;
+    /**
      * @var \Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration
      */
     private $pluginConfiguration;
-    /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Adapter\PluginOrderFactory
-     */
-    private $pluginOrderFactory;
-    /**
-     * @var \Axytos\KaufAufRechnung\Core\Model\AxytosOrderFactory
-     */
-    private $axytosOrderFactory;
 
     public function __construct()
     {
         parent::__construct();
         $this->pluginConfigurationValidator = $this->getServiceFromContainer(PluginConfigurationValidator::class);
+        $this->invoiceClient = $this->getServiceFromContainer(InvoiceClientInterface::class);
         $this->errorHandler = $this->getServiceFromContainer(ErrorHandler::class);
+        $this->invoiceOrderContextFactory = $this->getServiceFromContainer(InvoiceOrderContextFactory::class);
+        $this->orderCheckProcessStateMachine = $this->getServiceFromContainer(OrderCheckProcessStateMachine::class);
+        $this->orderHashCalculator = $this->getServiceFromContainer(OrderHashCalculator::class);
         $this->pluginConfiguration = $this->getServiceFromContainer(PluginConfiguration::class);
-        $this->pluginOrderFactory = $this->getServiceFromContainer(PluginOrderFactory::class);
-        $this->axytosOrderFactory = $this->getServiceFromContainer(AxytosOrderFactory::class);
     }
 
     /**
@@ -51,7 +61,7 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
      */
     public function executePayment($amount, &$oOrder)
     {
-        /** @var \AxytosOrder */
+        /** @var AxytosOrder */
         $order = $oOrder;
         $session = oxRegistry::getSession();
         $sessionVariableKey = AxytosEvents::PAYMENT_METHOD_ID . '_error_id';
@@ -67,20 +77,16 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
         }
 
         try {
-            /** @var \AxytosOrder */
+            /** @var AxytosOrder */
             $order = $oOrder;
 
             // add pre-check code here
+            $invoiceOrderContext = $this->invoiceOrderContextFactory->getInvoiceOrderContext($order);
+            $orderBasketHash = $this->orderHashCalculator->computeBasketHash($invoiceOrderContext);
 
-            $order->initializeOrderNumber();
+            $shopAction = $this->invoiceClient->precheck($invoiceOrderContext);
 
-            $pluginOrder = $this->pluginOrderFactory->create($order);
-            $axytosOrder = $this->axytosOrderFactory->create($pluginOrder);
-            $axytosOrder->checkout();
-
-            $shopAction = $axytosOrder->getOrderCheckoutAction();
-
-            if ($shopAction === AxytosOrderCheckoutAction::CHANGE_PAYMENT_METHOD) {
+            if ($shopAction === ShopActions::CHANGE_PAYMENT_METHOD) {
                 $config = oxRegistry::getConfig();
                 $utils = oxRegistry::getUtils();
                 $order->delete();
@@ -94,15 +100,25 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
                 $utils->redirect($config->getSslShopUrl() . 'index.php?cl=payment&' . AxytosEvents::PAYMENT_METHOD_ID . '_error_id=' . $shopAction, false);
                 return false;
             } else {
+                $order->initializeOrderNumber();
+
+                $this->orderCheckProcessStateMachine->setChecked($order, $orderBasketHash);
+
+                $this->invoiceClient->confirmOrder($invoiceOrderContext);
+
+                $this->orderCheckProcessStateMachine->setConfirmed($order);
+
                 $success = parent::executePayment($amount, $order);
 
                 return $success;
             }
         } catch (\Throwable $th) {
+            $this->orderCheckProcessStateMachine->setFailed($order);
             $this->errorHandler->handle($th);
             $order->delete();
             return false;
         } catch (\Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
+            $this->orderCheckProcessStateMachine->setFailed($order);
             $this->errorHandler->handle($th);
             $order->delete();
             return false;
