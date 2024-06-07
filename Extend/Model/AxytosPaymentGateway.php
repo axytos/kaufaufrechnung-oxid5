@@ -9,12 +9,12 @@ use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory;
 use Axytos\KaufAufRechnung_OXID5\Core\OrderCheckProcessStateMachine;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 use Axytos\KaufAufRechnung_OXID5\Events\AxytosEvents;
-use Axytos\KaufAufRechnung_OXID5\Extend\ServiceContainer;
+use Axytos\KaufAufRechnung_OXID5\Extend\AxytosServiceContainer;
 use oxRegistry;
 
 class AxytosPaymentGateway extends AxytosPaymentGateway_parent
 {
-    use ServiceContainer;
+    use AxytosServiceContainer;
 
     /** @phpstan-ignore-next-line
      * @var \Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator */
@@ -47,13 +47,13 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
     public function __construct()
     {
         parent::__construct();
-        $this->pluginConfigurationValidator = $this->getServiceFromContainer(PluginConfigurationValidator::class);
-        $this->invoiceClient = $this->getServiceFromContainer(InvoiceClientInterface::class);
-        $this->errorHandler = $this->getServiceFromContainer(ErrorHandler::class);
-        $this->invoiceOrderContextFactory = $this->getServiceFromContainer(InvoiceOrderContextFactory::class);
-        $this->orderCheckProcessStateMachine = $this->getServiceFromContainer(OrderCheckProcessStateMachine::class);
-        $this->orderHashCalculator = $this->getServiceFromContainer(OrderHashCalculator::class);
-        $this->pluginConfiguration = $this->getServiceFromContainer(PluginConfiguration::class);
+        $this->pluginConfigurationValidator = $this->getFromAxytosServiceContainer(PluginConfigurationValidator::class);
+        $this->invoiceClient = $this->getFromAxytosServiceContainer(InvoiceClientInterface::class);
+        $this->errorHandler = $this->getFromAxytosServiceContainer(ErrorHandler::class);
+        $this->invoiceOrderContextFactory = $this->getFromAxytosServiceContainer(InvoiceOrderContextFactory::class);
+        $this->orderCheckProcessStateMachine = $this->getFromAxytosServiceContainer(OrderCheckProcessStateMachine::class);
+        $this->orderHashCalculator = $this->getFromAxytosServiceContainer(OrderHashCalculator::class);
+        $this->pluginConfiguration = $this->getFromAxytosServiceContainer(PluginConfiguration::class);
     }
 
     /**
