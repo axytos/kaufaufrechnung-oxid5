@@ -3,13 +3,13 @@
 use Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 use Axytos\KaufAufRechnung_OXID5\Events\AxytosEvents;
-use Axytos\KaufAufRechnung_OXID5\Extend\AxytosServiceContainer;
+use Axytos\KaufAufRechnung_OXID5\Extend\ServiceContainer;
 use oxPayment;
 use oxUser;
 
 class AxytosPaymentList extends AxytosPaymentList_parent
 {
-    use AxytosServiceContainer;
+    use ServiceContainer;
 
     /**
      * @param oxUser $oUser — session user object
@@ -21,7 +21,7 @@ class AxytosPaymentList extends AxytosPaymentList_parent
             /** @var array<oxPayment> */
             $paymentList = parent::getPaymentList($sShipSetId, $dPrice, $oUser);
 
-            $pluginConfigurationValidator = $this->getFromAxytosServiceContainer(PluginConfigurationValidator::class);
+            $pluginConfigurationValidator = $this->getServiceFromContainer(PluginConfigurationValidator::class);
             if ($pluginConfigurationValidator->isInvalid()) {
                 unset($paymentList[AxytosEvents::PAYMENT_METHOD_ID]);
             }
@@ -29,7 +29,7 @@ class AxytosPaymentList extends AxytosPaymentList_parent
             return $paymentList;
         } catch (\Throwable $th) {
             /** @var ErrorHandler */
-            $errorHandler = $this->getFromAxytosServiceContainer(ErrorHandler::class);
+            $errorHandler = $this->getServiceFromContainer(ErrorHandler::class);
             $errorHandler->handle($th);
 
             try {
@@ -42,7 +42,7 @@ class AxytosPaymentList extends AxytosPaymentList_parent
             }
         } catch (\Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
             /** @var ErrorHandler */
-            $errorHandler = $this->getFromAxytosServiceContainer(ErrorHandler::class);
+            $errorHandler = $this->getServiceFromContainer(ErrorHandler::class);
             $errorHandler->handle($th);
             try {
                 // retry, error might not originate from parent
