@@ -2,6 +2,7 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Core;
 
+use Axytos\ECommerce\Clients\Invoice\InvoiceOrderContextInterface;
 use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketDtoFactory;
@@ -70,7 +71,7 @@ class InvoiceOrderContextFactory
 
     /**
      * @param oxOrder $order
-     * @return \Axytos\ECommerce\Clients\Invoice\InvoiceOrderContextInterface
+     * @return \Axytos\ECommerce\Clients\Invoice\InvoiceOrderContextInterface&\Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext
      */
     public function getInvoiceOrderContext(
         $order

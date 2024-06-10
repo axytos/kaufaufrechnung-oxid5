@@ -37,10 +37,10 @@ class AxytosPaymentList extends AxytosPaymentList_parent
                 return parent::getPaymentList($sShipSetId, $dPrice, $oUser);
             } catch (\Throwable $th) {
                 return [];
-            } catch (\Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
+            } catch (\Exception $th) { // @phpstan-ignore-line bcause of php 5.6 compatibility
                 return [];
             }
-        } catch (\Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
+        } catch (\Exception $th) { // @phpstan-ignore-line bcause of php 5.6 compatibility
             /** @var ErrorHandler */
             $errorHandler = $this->getFromAxytosServiceContainer(ErrorHandler::class);
             $errorHandler->handle($th);

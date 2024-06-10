@@ -3,8 +3,8 @@
 namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDtoCollection;
-use oxList;
 use oxOrder;
+use oxList;
 
 class CreateInvoiceBasketPositionDtoCollectionFactory
 {

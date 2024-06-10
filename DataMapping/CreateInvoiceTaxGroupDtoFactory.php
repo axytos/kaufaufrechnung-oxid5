@@ -4,8 +4,7 @@ namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
-use oxOrder;
-use oxOrderArticle;
+use Axytos\KaufAufRechnung_OXID5\ValueCalculation\VoucherDiscountCalculator;
 
 class CreateInvoiceTaxGroupDtoFactory
 {
@@ -14,14 +13,21 @@ class CreateInvoiceTaxGroupDtoFactory
      */
     private $shippingCostCalculator;
 
+    /**
+     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\VoucherDiscountCalculator
+     */
+    private $voucherDiscountCalculator;
+
     public function __construct(
-        ShippingCostCalculator $shippingCostCalculator
+        ShippingCostCalculator $shippingCostCalculator,
+        VoucherDiscountCalculator $voucherDiscountCalculator
     ) {
         $this->shippingCostCalculator = $shippingCostCalculator;
+        $this->voucherDiscountCalculator = $voucherDiscountCalculator;
     }
 
     /**
-     * @param oxOrderArticle $orderArticle
+     * @param \oxOrderArticle $orderArticle
      * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto
      */
     public function create($orderArticle)
@@ -38,7 +44,7 @@ class CreateInvoiceTaxGroupDtoFactory
     }
 
     /**
-     * @param oxOrder $order
+     * @param \oxOrder $order
      * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto
      */
     public function createShippingPosition($order)
@@ -55,37 +61,34 @@ class CreateInvoiceTaxGroupDtoFactory
     }
 
     /**
-     * @param oxOrder $order
-     * @param \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto[] $taxGroups
+     * @param \oxOrder $order
      * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto|null
      */
-    public function createVoucherPosition($order, $taxGroups)
+    public function createVoucherPosition($order)
     {
-        $voucherDiscountGross = -floatval($order->getFieldData("oxvoucherdiscount"));
-        if ($voucherDiscountGross === 0.0) {
+        $isB2B = boolval($order->getFieldData('oxisnettomode'));
+
+        $totalVoucherDiscountForOrder = $this->voucherDiscountCalculator->calculate($order);
+
+        if ($totalVoucherDiscountForOrder === 0.0) {
             return null;
         }
 
-        $valueToTaxSum = array_sum(array_map(
-            function (CreateInvoiceTaxGroupDto $dto) {
-                return $dto->valueToTax;
-            },
-            $taxGroups
-        ));
-        $voucherDiscountNet = round(floatval($order->getFieldData("oxtotalnetsum")) - $valueToTaxSum, 2);
-        if (!is_finite($voucherDiscountNet)) {
-            $voucherDiscountNet = 0;
-        }
-
-        $voucherTaxPercent = round((($voucherDiscountGross / $voucherDiscountNet) - 1) * 100);
-        if (!is_finite($voucherTaxPercent)) {
-            $voucherTaxPercent = 0;
-        }
-
         $position = new CreateInvoiceTaxGroupDto();
-        $position->valueToTax = $voucherDiscountNet;
-        $position->taxPercent = $voucherTaxPercent;
-        $position->total = round($voucherDiscountGross - $voucherDiscountNet, 2);
+        $position->taxPercent = 0;
+
+        if ($isB2B) {
+            // voucher is subtracted from net backet value,
+            // so it is a value to tax
+            $position->total = 0;
+            $position->valueToTax = $totalVoucherDiscountForOrder;
+        } else {
+            // voucher is substracted from gross basket value,
+            // so it is total value for the whole order
+            $position->total = $totalVoucherDiscountForOrder;
+            $position->valueToTax = 0;
+        }
+
         return $position;
     }
 }
