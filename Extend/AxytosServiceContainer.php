@@ -4,7 +4,7 @@ namespace Axytos\KaufAufRechnung_OXID5\Extend;
 
 use Axytos\KaufAufRechnung_OXID5\DependencyInjection\ContainerFactory;
 
-trait ServiceContainer
+trait AxytosServiceContainer
 {
     /**
      * @template T
@@ -12,7 +12,7 @@ trait ServiceContainer
      * @return T
      * @param string $serviceName
      */
-    protected function getServiceFromContainer($serviceName)
+    protected function getFromAxytosServiceContainer($serviceName)
     {
         return ContainerFactory::getInstance()
             ->getContainer()

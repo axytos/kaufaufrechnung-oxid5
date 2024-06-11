@@ -1,11 +1,11 @@
 <?php
 
-use Axytos\KaufAufRechnung_OXID5\Extend\ServiceContainer;
+use Axytos\KaufAufRechnung_OXID5\Extend\AxytosServiceContainer;
 use Axytos\KaufAufRechnung_OXID5\OrderSync\OrderSyncCronJob;
 
 class AxytosMaintenance extends AxytosMaintenance_parent
 {
-    use ServiceContainer;
+    use AxytosServiceContainer;
 
     /**
      * @return void
@@ -15,7 +15,7 @@ class AxytosMaintenance extends AxytosMaintenance_parent
         parent::execute();
 
         /** @var OrderSyncCronJob */
-        $orderSyncCronJob = $this->getServiceFromContainer(OrderSyncCronJob::class);
+        $orderSyncCronJob = $this->getFromAxytosServiceContainer(OrderSyncCronJob::class);
         $orderSyncCronJob->execute();
     }
 }
