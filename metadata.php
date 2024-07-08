@@ -25,7 +25,7 @@ $aModule = array(
         "en" => "You conveniently pay the invoice as soon as you receive the goods, within the payment period",
     ],
     "thumbnail"   => "assets/img/logo.png",
-    "version"     => "1.6.15-rc",
+    "version"     => "1.6.16-rc",
     "author"      => "axytos GmbH",
     "url"         => "https://www.axytos.com",
     "email"       => "info@axytos.com",
