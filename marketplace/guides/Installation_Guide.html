@@ -1,6 +1,6 @@
 <h2 id="installationsanleitung">Installationsanleitung</h2>
 <p>Das Modul stellt die Bezahlmethode <strong>Kauf Auf Rechnung</strong>
-für den Einkauf in Ihrem Oxid Shop bereit.</p>
+für den Einkauf in Ihrem OXID Shop bereit.</p>
 <p>Einkäufe mit dieser Bezahlmethode werden von axytos ggf. bis zum
 Forderungsmanagement übernommen.</p>
 <p>Alle relevanten Änderungen an Bestellungen mit dieser Bezahlmethode
@@ -28,7 +28,7 @@ verbinden.</p>
 <p>Zuerst muss der Code des Moduls heruntergeladen und auf dem Server
 installiert werden. Befolgen Sie dazu folgende Schritte:</p>
 <ol type="1">
-<li><p>Zur Installation Ihrer Oxid Distribution wechseln. Dort im Ordner
+<li><p>Zur Installation Ihrer OXID Distribution wechseln. Dort im Ordner
 <code>modules</code> einen neuen Ordner namens <code>axytos</code>
 anlegen</p></li>
 <li><p>Den Quellcode des <strong>Kauf auf Rechnung</strong> OXID-5
@@ -43,9 +43,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">php</span> install.php</span></code></pre></div>
 <p>Nachdem das Modul erfolgreich installiert wurde, kann es nun
 aktiviert werden. Dies erfolgt über die Administrations-Oberfläche von
-Oxid.</p>
+OXID.</p>
 <ol type="1">
-<li><p>Zur Administration Ihrer Oxid Distribution wechseln. Nach
+<li><p>Zur Administration Ihrer OXID Distribution wechseln. Nach
 Installation ist das Modul unter <em>Erweiterungen &gt; Module</em>
 aufgeführt.</p></li>
 <li><p>Unter <em>Stamm</em> <strong>Aktivieren</strong>
@@ -57,9 +57,9 @@ werden.</p>
 zu <a href="https://portal.axytos.com/">https://portal.axytos.com/</a>
 (siehe Voraussetzungen).</p>
 <h2 id="modul--und-shop-konfiguration-in-oxid">Modul- und
-Shop-Konfiguration in Oxid</h2>
+Shop-Konfiguration in OXID</h2>
 <ol type="1">
-<li><p>Zur Administration Ihrer Oxid Distribution wechseln. Das Modul
+<li><p>Zur Administration Ihrer OXID Distribution wechseln. Das Modul
 ist unter <em>Erweiterungen &gt; Module</em> aufgeführt.</p></li>
 <li><p>Zu <em>Einstell.</em> wechseln und <em>API Einstellungen</em>
 aufklappen, um die Konfiguration zu öffnen.</p></li>
@@ -87,9 +87,9 @@ speichern.</p>
 <h2 id="cron-job-aktivieren">Cron-Job aktivieren</h2>
 <p>Das <strong>Kauf Auf Rechnung</strong> Modul benötigt einen
 regelmäßig ausgeführten Cron-Job, um Änderungen am Bestellstatus
-synchronisieren zu können. Dieser wird automatisch in Oxid registriert,
+synchronisieren zu können. Dieser wird automatisch in OXID registriert,
 sobald das Modul aktiviert wurde.</p>
-<p>Damit dieser jedoch auch ausgeführt wird, muss der Oxid-Cron-Job
+<p>Damit dieser jedoch auch ausgeführt wird, muss der OXID-Cron-Job
 selbst aktiviert werden. Dazu müssen folgende Voraussetzungen gegeben
 sein:</p>
 <ol type="1">
@@ -102,7 +102,7 @@ regelmäßigen Abständen ausführt. Falls dies nicht der Fall ist, kann mit
 folgendem Befehl einer angelegt werden, welcher die Synchronisation
 einmal stündlich anstößt. Dabei muss
 <code>&lt;oxid-installations-ordner&gt;</code> durch den vollständigen
-Dateipfad zu dem Ordner Ihrer Oxid-Installation ersetzt werden.</p></li>
+Dateipfad zu dem Ordner Ihrer OXID-Installation ersetzt werden.</p></li>
 </ol>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;0 */1 * * * php &lt;oxid-installations-ordner&gt;/bin/cron.php&#39;</span> <span class="op">&gt;</span> /tmp/crontab.txt</span>
@@ -126,7 +126,7 @@ korrekten Verbindungsdaten (<strong>API Host</strong> &amp; <strong>API
 Key</strong>) konfiguriert.</p></li>
 <li><p>Sie haben Versandarten, Benutzergruppen und Länder
 zugeordnet.</p></li>
-<li><p>Der Oxid-Cron-Job ist aktiviert und wird regelmäßig
+<li><p>Der OXID-Cron-Job ist aktiviert und wird regelmäßig
 ausgeführt.</p></li>
 </ol>
 <p>Fehlerhafte Verbindungsdaten führen dazu, dass das Modul nicht für

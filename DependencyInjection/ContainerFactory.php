@@ -277,7 +277,8 @@ class ContainerFactory
             return new OrderSyncWorker(
                 $container->get(OrderSyncRepositoryInterface::class),
                 $container->get(AxytosOrderFactory::class),
-                $container->get(KARCoreLoggerAdapterInterface::class)
+                $container->get(KARCoreLoggerAdapterInterface::class),
+                $container->get(ErrorReportingClientInterface::class)
             );
         });
         $containerBuilder->registerFactory(OrderSyncCronJob::class, function ($container) {

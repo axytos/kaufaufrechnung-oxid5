@@ -7,6 +7,7 @@ use Axytos\KaufAufRechnung\Core\Model\Actions\Results\FatalErrorResult;
 use Axytos\KaufAufRechnung\Core\Model\Actions\Results\InvalidDataResult;
 use Axytos\KaufAufRechnung\Core\Model\Actions\Results\InvalidMethodResult;
 use Axytos\KaufAufRechnung\Core\Model\Actions\Results\PluginNotConfiguredResult;
+use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Logging\LoggerAdapterInterface;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 use Axytos\KaufAufRechnung_OXID5\Extend\AxytosServiceContainer;
 use oxWidget;
@@ -42,12 +43,18 @@ class axytos_kaufaufrechnung_action_callback extends oxWidget
      */
     private $actionExecutor;
 
+    /**
+     * @var \Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Logging\LoggerAdapterInterface
+     */
+    private $logger;
+
     public function __construct()
     {
         parent::__construct();
         $this->errorHandler = $this->getFromAxytosServiceContainer(ErrorHandler::class);
         $this->pluginConfigurationValidator = $this->getFromAxytosServiceContainer(PluginConfigurationValidator::class);
         $this->actionExecutor = $this->getFromAxytosServiceContainer(ActionExecutorInterface::class);
+        $this->logger = $this->getFromAxytosServiceContainer(LoggerAdapterInterface::class);
     }
 
     /**
@@ -85,31 +92,43 @@ class axytos_kaufaufrechnung_action_callback extends oxWidget
     {
         $rawBody = $this->getRequestBody();
 
-        if ($rawBody === false) {
+        if ($rawBody === '') {
+            $this->logger->error('Process Action Request: HTTP request body empty');
             $this->setResult(new InvalidDataResult('HTTP request body empty'));
             return;
         }
 
         $decodedBody = json_decode($rawBody, true);
         if (!is_array($decodedBody)) {
+            $this->logger->error('Process Action Request: HTTP request body is not a json object');
             $this->setResult(new InvalidDataResult('HTTP request body is not a json object'));
             return;
         }
 
-        $clientSecret = $decodedBody['clientSecret'];
+        $loggableRequestBody = $decodedBody;
+        if (array_key_exists('clientSecret', $loggableRequestBody)) {
+            $loggableRequestBody['clientSecret'] = '****';
+        }
+        $encodedLoggableRequestBody = json_encode($loggableRequestBody);
+        $this->logger->info("Process Action Request: request body '$encodedLoggableRequestBody'");
+
+        $clientSecret = array_key_exists('clientSecret', $decodedBody) ? $decodedBody['clientSecret'] : null;
         if (!is_string($clientSecret)) {
+            $this->logger->error("Process Action Request: Required string property 'clientSecret' is missing");
             $this->setResult(new InvalidDataResult('Required string property', 'clientSecret'));
             return;
         }
 
-        $action = $decodedBody['action'];
+        $action = array_key_exists('action', $decodedBody) ?  $decodedBody['action'] : null;
         if (!is_string($action)) {
+            $this->logger->error("Process Action Request: Required string property 'action' is missing");
             $this->setResult(new InvalidDataResult('Required string property', 'action'));
             return;
         }
 
-        $params = $decodedBody['params'];
+        $params = array_key_exists('params', $decodedBody) ? $decodedBody['params'] : null;
         if (!is_null($params) && !is_array($params)) {
+            $this->logger->error("Process Action Request: Optional object property 'params' ist not an array");
             $this->setResult(new InvalidDataResult('Optional object property', 'params'));
             return;
         }
@@ -128,11 +147,9 @@ class axytos_kaufaufrechnung_action_callback extends oxWidget
         // - https://stackoverflow.com/a/8945912
 
         $rawBody = file_get_contents('php://input');
-
-        if ($rawBody === false) {
+        if (!is_string($rawBody)) {
             return '';
         }
-
         return $rawBody;
     }
 

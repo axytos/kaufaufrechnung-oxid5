@@ -57,7 +57,11 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
         $sessionVariableKey = AxytosEvents::PAYMENT_METHOD_ID . '_error_id';
         $sessionVariableErrorMessage = AxytosEvents::PAYMENT_METHOD_ID . '_error_message';
 
-        if ($order->getPaymentType()->getFieldData("oxpaymentsid") !== AxytosEvents::PAYMENT_METHOD_ID) {
+        if (
+            is_null($order)
+            || is_null($order->getPaymentType())
+            || $order->getPaymentType()->getFieldData("oxpaymentsid") !== AxytosEvents::PAYMENT_METHOD_ID
+        ) {
             $success = parent::executePayment($amount, $order);
             if ($success) {
                 $session->deleteVariable($sessionVariableKey);
