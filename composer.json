@@ -39,5 +39,6 @@
             "@phpunit --testsuite Integration"
         ],
         "phpunit": "vendor/bin/phpunit"
-    }
+    },
+    "minimum-stability": "alpha"
 }
