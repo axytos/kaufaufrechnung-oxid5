@@ -7,19 +7,19 @@ use Axytos\ECommerce\PackageInfo\ComposerPackageInfoProvider;
 
 class UserAgentInfoProvider implements UserAgentInfoProviderInterface
 {
+    use OxidShopVersionAccessTrait;
+
     /**
-     * @var \Axytos\ECommerce\PackageInfo\ComposerPackageInfoProvider
+     * @var ComposerPackageInfoProvider
      */
     private $composerPackageInfoProvider;
-    /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Client\Oxid5ShopVersionProvider
-     */
-    private $shopVersionProvider;
 
-    public function __construct(ComposerPackageInfoProvider $composerPackageInfoProvider, Oxid5ShopVersionProvider $shopVersionProvider)
+    /**
+     * @return void
+     */
+    public function __construct(ComposerPackageInfoProvider $composerPackageInfoProvider)
     {
         $this->composerPackageInfoProvider = $composerPackageInfoProvider;
-        $this->shopVersionProvider = $shopVersionProvider;
     }
 
     /**
@@ -27,7 +27,7 @@ class UserAgentInfoProvider implements UserAgentInfoProviderInterface
      */
     public function getPluginName()
     {
-        return "KaufAufRechnung";
+        return 'KaufAufRechnung';
     }
 
     /**
@@ -46,7 +46,7 @@ class UserAgentInfoProvider implements UserAgentInfoProviderInterface
      */
     public function getShopSystemName()
     {
-        return "OXID-eShop";
+        return 'OXID-eShop';
     }
 
     /**
@@ -54,6 +54,6 @@ class UserAgentInfoProvider implements UserAgentInfoProviderInterface
      */
     public function getShopSystemVersion()
     {
-        return $this->shopVersionProvider->getVersion();
+        return $this->getVersion();
     }
 }

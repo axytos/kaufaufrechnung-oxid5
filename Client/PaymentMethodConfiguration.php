@@ -8,6 +8,7 @@ class PaymentMethodConfiguration implements PaymentMethodConfigurationInterface
 {
     /**
      * @param string $paymentMethodId
+     *
      * @return bool
      */
     public function isIgnored($paymentMethodId)
@@ -17,6 +18,7 @@ class PaymentMethodConfiguration implements PaymentMethodConfigurationInterface
 
     /**
      * @param string $paymentMethodId
+     *
      * @return bool
      */
     public function isSafe($paymentMethodId)
@@ -26,6 +28,7 @@ class PaymentMethodConfiguration implements PaymentMethodConfigurationInterface
 
     /**
      * @param string $paymentMethodId
+     *
      * @return bool
      */
     public function isUnsafe($paymentMethodId)
@@ -35,6 +38,7 @@ class PaymentMethodConfiguration implements PaymentMethodConfigurationInterface
 
     /**
      * @param string $paymentMethodId
+     *
      * @return bool
      */
     public function isNotConfigured($paymentMethodId)

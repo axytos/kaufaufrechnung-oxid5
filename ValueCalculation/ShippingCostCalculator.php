@@ -7,6 +7,7 @@ class ShippingCostCalculator
     /**
      * @param float $grossDeliveryCosts
      * @param float $deliveryTax
+     *
      * @return float
      */
     public function calculateNetPrice($grossDeliveryCosts, $deliveryTax)

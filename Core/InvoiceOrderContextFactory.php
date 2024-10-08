@@ -2,7 +2,6 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Core;
 
-use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\CustomerDataDtoFactory;
@@ -11,40 +10,39 @@ use Axytos\KaufAufRechnung_OXID5\DataMapping\InvoiceAddressDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\ShippingBasketPositionDtoCollectionFactory;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator;
-use oxOrder;
 
 class InvoiceOrderContextFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CustomerDataDtoFactory
+     * @var CustomerDataDtoFactory
      */
     private $customerDataDtoFactory;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\DeliveryAddressDtoFactory
+     * @var DeliveryAddressDtoFactory
      */
     private $deliveryAddressDtoFactory;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\InvoiceAddressDtoFactory
+     * @var InvoiceAddressDtoFactory
      */
     private $invoiceAddressDtoFactory;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory
+     * @var BasketDtoFactory
      */
     private $basketDtoFactory;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketDtoFactory
+     * @var CreateInvoiceBasketDtoFactory
      */
     private $createInvoiceBasketDtoFactory;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\ShippingBasketPositionDtoCollectionFactory
+     * @var ShippingBasketPositionDtoCollectionFactory
      */
     private $shippingBasketPositionDtoCollectionFactory;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator
+     * @var TrackingIdCalculator
      */
     private $trackingIdCalculator;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator
+     * @var LogisticianCalculator
      */
     private $logisticianCalculator;
 
@@ -69,8 +67,9 @@ class InvoiceOrderContextFactory
     }
 
     /**
-     * @param oxOrder $order
-     * @return \Axytos\ECommerce\Clients\Invoice\InvoiceOrderContextInterface
+     * @param \oxOrder $order
+     *
+     * @return \Axytos\ECommerce\Clients\Invoice\InvoiceOrderContextInterface&\Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext
      */
     public function getInvoiceOrderContext(
         $order

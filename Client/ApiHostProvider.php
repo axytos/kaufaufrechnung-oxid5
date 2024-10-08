@@ -8,7 +8,7 @@ use Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration;
 class ApiHostProvider implements ApiHostProviderInterface
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration
+     * @var PluginConfiguration
      */
     public $pluginConfig;
 
@@ -19,9 +19,19 @@ class ApiHostProvider implements ApiHostProviderInterface
 
     /**
      * @return string
+     *
+     * @phpstan-return self::LIVE|self::SANDBOX
      */
     public function getApiHost()
     {
-        return $this->pluginConfig->getApiHost();
+        $option = $this->pluginConfig->getApiHost();
+        switch ($option) {
+            case 'APIHOST_LIVE':
+                return self::LIVE;
+            case 'APIHOST_SANDBOX':
+                return self::SANDBOX;
+            default:
+                return self::SANDBOX;
+        }
     }
 }

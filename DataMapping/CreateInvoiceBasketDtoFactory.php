@@ -4,22 +4,21 @@ namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketDto;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
-use oxOrder;
 
 class CreateInvoiceBasketDtoFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketPositionDtoCollectionFactory
+     * @var CreateInvoiceBasketPositionDtoCollectionFactory
      */
     private $createInvoiceBasketPositionDtoCollectionFactory;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceTaxGroupDtoCollectionFactory
+     * @var CreateInvoiceTaxGroupDtoCollectionFactory
      */
     private $createInvoiceTaxGroupDtoCollectionFactory;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator
+     * @var ShippingCostCalculator
      */
     private $shippingCostCalculator;
 
@@ -34,21 +33,31 @@ class CreateInvoiceBasketDtoFactory
     }
 
     /**
-     * @param oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketDto
+     * @param \oxOrder $order
+     *
+     * @return CreateInvoiceBasketDto
      */
     public function create($order)
     {
-        $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
-        $deliveryTax = floatval($order->getFieldData("oxdelvat"));
+        $isB2B = boolval($order->getFieldData('oxisnettomode'));
+        $grossDeliveryCosts = floatval($order->getFieldData('oxdelcost'));
+        $deliveryTax = floatval($order->getFieldData('oxdelvat'));
         $netDeliveryCosts = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
-        $voucherDiscount = floatval($order->getFieldData("oxvoucherdiscount"));
+
+        // the total monetary value of all applied vouchers
+        $totalVoucherDiscount = floatval($order->getFieldData('oxvoucherdiscount'));
 
         $basket = new CreateInvoiceBasketDto();
         $basket->positions = $this->createInvoiceBasketPositionDtoCollectionFactory->create($order);
         $basket->taxGroups = $this->createInvoiceTaxGroupDtoCollectionFactory->create($order);
-        $basket->grossTotal = floatval($order->getFieldData("oxtotalbrutsum")) + $grossDeliveryCosts - $voucherDiscount;
-        $basket->netTotal = floatval($order->getFieldData("oxtotalnetsum")) + $netDeliveryCosts;
+
+        $basket->grossTotal = floatval($order->getFieldData('oxtotalordersum'));
+        if ($isB2B) {
+            $basket->netTotal = floatval($order->getFieldData('oxtotalnetsum')) + $netDeliveryCosts - $totalVoucherDiscount;
+        } else {
+            $basket->netTotal = floatval($order->getFieldData('oxtotalnetsum')) + $netDeliveryCosts;
+        }
+
         return $basket;
     }
 }

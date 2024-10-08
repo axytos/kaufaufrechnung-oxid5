@@ -4,11 +4,13 @@ namespace Axytos\KaufAufRechnung_OXID5\Tests\Unit\ValueCalculation;
 
 use Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
-use oxOrder;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ */
 class LogisticianCalculatorTest extends TestCase
 {
     /**
@@ -17,12 +19,13 @@ class LogisticianCalculatorTest extends TestCase
     private $orderRepository;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator
+     * @var LogisticianCalculator
      */
     private $sut;
 
     /**
      * @before
+     *
      * @return void
      */
     #[Before]
@@ -38,8 +41,8 @@ class LogisticianCalculatorTest extends TestCase
      */
     public function test_calculate()
     {
-        /** @var oxOrder&MockObject */
-        $order = $this->createMock(oxOrder::class);
+        /** @var \oxOrder&MockObject */
+        $order = $this->createMock(\oxOrder::class);
 
         $this->orderRepository->method('findLogistician')->with($order)->willReturn('Logistician');
 
