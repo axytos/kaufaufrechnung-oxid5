@@ -8,19 +8,16 @@ use Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository;
 class OrderSyncRepository implements OrderSyncRepositoryInterface
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository
+     * @var OrderRepository
      */
     private $orderRepository;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Adapter\PluginOrderFactory
+     * @var PluginOrderFactory
      */
     private $pluginOrderFactory;
 
     /**
-     *
-     * @param \Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository $orderRepository
-     * @param \Axytos\KaufAufRechnung_OXID5\Adapter\PluginOrderFactory $pluginOrderFactory
      * @return void
      */
     public function __construct(OrderRepository $orderRepository, PluginOrderFactory $pluginOrderFactory)
@@ -33,6 +30,7 @@ class OrderSyncRepository implements OrderSyncRepositoryInterface
     {
         $this->orderRepository->migrateOrderStates();
         $orders = $this->orderRepository->getOrdersByStates($orderStates, $limit, $startId);
+
         return $this->pluginOrderFactory->createMany($orders);
     }
 

@@ -9,24 +9,24 @@ use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 
 class OrderSyncCronJob
 {
-  /**
-   * @var PluginConfigurationValidator
-   */
+    /**
+     * @var PluginConfigurationValidator
+     */
     private $pluginConfigurationValidator;
 
-  /**
-   * @var OrderSyncWorker
-   */
+    /**
+     * @var OrderSyncWorker
+     */
     private $orderSyncWorker;
 
-  /**
-   * @var LoggerAdapterInterface
-   */
+    /**
+     * @var LoggerAdapterInterface
+     */
     private $logger;
 
-  /**
-   * @var ErrorHandler
-   */
+    /**
+     * @var ErrorHandler
+     */
     private $errorHandler;
 
     public function __construct(
@@ -41,9 +41,9 @@ class OrderSyncCronJob
         $this->errorHandler = $errorHandler;
     }
 
-  /**
-   * @return void
-   */
+    /**
+     * @return void
+     */
     public function execute()
     {
         try {
@@ -51,6 +51,7 @@ class OrderSyncCronJob
 
             if ($this->pluginConfigurationValidator->isInvalid()) {
                 $this->logger->info('CronJob Order Sync aborted: invalid config');
+
                 return;
             }
 

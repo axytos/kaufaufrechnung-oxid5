@@ -2,19 +2,20 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Tests;
 
-use oxAddress;
-use oxBase;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ */
 class BaseTest extends TestCase
 {
     /**
      * @return void
      */
-    public function test_OXID5_class_can_be_autoloaded()
+    public function test_oxi_d_class_can_be_autoloaded()
     {
-        $address = $this->createMock(oxAddress::class);
+        $address = $this->createMock(\oxAddress::class);
 
-        $this->assertInstanceOf(oxBase::class, $address);
+        $this->assertInstanceOf(\oxBase::class, $address);
     }
 }

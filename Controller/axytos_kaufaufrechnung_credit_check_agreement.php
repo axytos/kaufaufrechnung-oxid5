@@ -7,7 +7,7 @@ use oxUBase;
 
 class axytos_kaufaufrechnung_credit_check_agreement extends oxUBase
 {
-    protected $_sThisTemplate = "credit_check_agreement.tpl";
+    protected $_sThisTemplate = 'credit_check_agreement.tpl';
 
     /**
      * @return string
@@ -16,23 +16,29 @@ class axytos_kaufaufrechnung_credit_check_agreement extends oxUBase
     {
         try {
             /** @var CheckoutClientInterface */
-            $checkoutClient =  ContainerFactory::getInstance()
+            $checkoutClient = ContainerFactory::getInstance()
                 ->getContainer()
-                ->get(CheckoutClientInterface::class);
+                ->get(CheckoutClientInterface::class)
+            ;
+
             return $checkoutClient->getCreditCheckAgreementInfo();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             /** @var ErrorHandler */
-            $errorHandler =  ContainerFactory::getInstance()
+            $errorHandler = ContainerFactory::getInstance()
                 ->getContainer()
-                ->get(ErrorHandler::class);
+                ->get(ErrorHandler::class)
+            ;
             $errorHandler->handle($th);
+
             return '';
-        } catch (\Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
+        } catch (Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
             /** @var ErrorHandler */
-            $errorHandler =  ContainerFactory::getInstance()
+            $errorHandler = ContainerFactory::getInstance()
                 ->getContainer()
-                ->get(ErrorHandler::class);
+                ->get(ErrorHandler::class)
+            ;
             $errorHandler->handle($th);
+
             return '';
         }
     }

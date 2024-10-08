@@ -4,21 +4,22 @@ use Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 use Axytos\KaufAufRechnung_OXID5\Events\AxytosEvents;
 use Axytos\KaufAufRechnung_OXID5\Extend\AxytosServiceContainer;
-use oxPayment;
-use oxUser;
 
 class AxytosPaymentList extends AxytosPaymentList_parent
 {
     use AxytosServiceContainer;
 
     /**
-     * @param oxUser $oUser — session user object
-     * @return array<oxPayment>
+     * @param oxUser $oUser      — session user object
+     * @param string $sShipSetId
+     * @param float  $dPrice
+     *
+     * @return array<\oxPayment>
      */
     public function getPaymentList($sShipSetId, $dPrice, $oUser = null)
     {
         try {
-            /** @var array<oxPayment> */
+            /** @var array<\oxPayment> */
             $paymentList = parent::getPaymentList($sShipSetId, $dPrice, $oUser);
 
             $pluginConfigurationValidator = $this->getFromAxytosServiceContainer(PluginConfigurationValidator::class);
@@ -27,7 +28,7 @@ class AxytosPaymentList extends AxytosPaymentList_parent
             }
 
             return $paymentList;
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             /** @var ErrorHandler */
             $errorHandler = $this->getFromAxytosServiceContainer(ErrorHandler::class);
             $errorHandler->handle($th);
@@ -35,21 +36,21 @@ class AxytosPaymentList extends AxytosPaymentList_parent
             try {
                 // retry, error might not originate from parent
                 return parent::getPaymentList($sShipSetId, $dPrice, $oUser);
-            } catch (\Throwable $th) {
+            } catch (Throwable $th) {
                 return [];
-            } catch (\Exception $th) { // @phpstan-ignore-line bcause of php 5.6 compatibility
+            } catch (Exception $th) { // @phpstan-ignore-line bcause of php 5.6 compatibility
                 return [];
             }
-        } catch (\Exception $th) { // @phpstan-ignore-line bcause of php 5.6 compatibility
+        } catch (Exception $th) { // @phpstan-ignore-line bcause of php 5.6 compatibility
             /** @var ErrorHandler */
             $errorHandler = $this->getFromAxytosServiceContainer(ErrorHandler::class);
             $errorHandler->handle($th);
             try {
                 // retry, error might not originate from parent
                 return parent::getPaymentList($sShipSetId, $dPrice, $oUser);
-            } catch (\Throwable $th) {
+            } catch (Throwable $th) {
                 return [];
-            } catch (\Exception $th) {
+            } catch (Exception $th) {
                 return [];
             }
         }

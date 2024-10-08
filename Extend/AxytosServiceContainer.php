@@ -8,14 +8,18 @@ trait AxytosServiceContainer
 {
     /**
      * @template T
+     *
      * @psalm-param class-string<T> $serviceName
-     * @return T
+     *
      * @param string $serviceName
+     *
+     * @return T
      */
     protected function getFromAxytosServiceContainer($serviceName)
     {
         return ContainerFactory::getInstance()
             ->getContainer()
-            ->get($serviceName);
+            ->get($serviceName)
+        ;
     }
 }

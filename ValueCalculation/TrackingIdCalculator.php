@@ -2,19 +2,18 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\ValueCalculation;
 
-use oxOrder;
-
 class TrackingIdCalculator
 {
     /**
-     * @param oxOrder $order
+     * @param \oxOrder $order
+     *
      * @return string[]
      */
     public function calculate($order)
     {
-        $trackingCode = strval($order->getFieldData("oxtrackcode"));
+        $trackingCode = strval($order->getFieldData('oxtrackcode'));
 
-        if ($trackingCode !== '') {
+        if ('' !== $trackingCode) {
             return [$trackingCode];
         }
 

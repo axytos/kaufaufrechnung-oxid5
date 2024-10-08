@@ -9,12 +9,12 @@ use Axytos\KaufAufRechnung_OXID5\ValueCalculation\VoucherDiscountCalculator;
 class CreateInvoiceTaxGroupDtoFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator
+     * @var ShippingCostCalculator
      */
     private $shippingCostCalculator;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\VoucherDiscountCalculator
+     * @var VoucherDiscountCalculator
      */
     private $voucherDiscountCalculator;
 
@@ -28,29 +28,31 @@ class CreateInvoiceTaxGroupDtoFactory
 
     /**
      * @param \oxOrderArticle $orderArticle
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto
+     *
+     * @return CreateInvoiceTaxGroupDto
      */
     public function create($orderArticle)
     {
-        $brutPrice = floatval($orderArticle->getFieldData("oxbrutprice"));
-        $netPrice = floatval($orderArticle->getFieldData("oxnetprice"));
+        $brutPrice = floatval($orderArticle->getFieldData('oxbrutprice'));
+        $netPrice = floatval($orderArticle->getFieldData('oxnetprice'));
 
         $taxGroup = new CreateInvoiceTaxGroupDto();
         $taxGroup->valueToTax = $netPrice;
         $taxGroup->total = round($brutPrice - $netPrice, 2);
-        $taxGroup->taxPercent = floatval($orderArticle->getFieldData("oxvat"));
+        $taxGroup->taxPercent = floatval($orderArticle->getFieldData('oxvat'));
 
         return $taxGroup;
     }
 
     /**
      * @param \oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto
+     *
+     * @return CreateInvoiceTaxGroupDto
      */
     public function createShippingPosition($order)
     {
-        $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
-        $deliveryTax = floatval($order->getFieldData("oxdelvat"));
+        $grossDeliveryCosts = floatval($order->getFieldData('oxdelcost'));
+        $deliveryTax = floatval($order->getFieldData('oxdelvat'));
 
         $taxGroup = new CreateInvoiceTaxGroupDto();
         $taxGroup->valueToTax = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
@@ -62,7 +64,8 @@ class CreateInvoiceTaxGroupDtoFactory
 
     /**
      * @param \oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto|null
+     *
+     * @return CreateInvoiceTaxGroupDto|null
      */
     public function createVoucherPosition($order)
     {
@@ -70,7 +73,7 @@ class CreateInvoiceTaxGroupDtoFactory
 
         $totalVoucherDiscountForOrder = $this->voucherDiscountCalculator->calculate($order);
 
-        if ($totalVoucherDiscountForOrder === 0.0) {
+        if (0.0 === $totalVoucherDiscountForOrder) {
             return null;
         }
 

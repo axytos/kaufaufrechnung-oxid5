@@ -9,7 +9,6 @@ use Axytos\ECommerce\Abstractions\PaymentMethodConfigurationInterface;
 use Axytos\ECommerce\Abstractions\UserAgentInfoProviderInterface;
 use Axytos\ECommerce\AxytosECommerceClient;
 use Axytos\ECommerce\Clients\Checkout\CheckoutClientInterface;
-use Axytos\ECommerce\Clients\ErrorReporting\ErrorReportingClient;
 use Axytos\ECommerce\Clients\ErrorReporting\ErrorReportingClientInterface;
 use Axytos\ECommerce\Clients\Invoice\InvoiceClientInterface;
 use Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator;
@@ -18,7 +17,6 @@ use Axytos\ECommerce\DependencyInjection\Container;
 use Axytos\ECommerce\DependencyInjection\ContainerBuilder;
 use Axytos\ECommerce\Logging\LoggerAdapterInterface;
 use Axytos\ECommerce\PackageInfo\ComposerPackageInfoProvider;
-use Axytos\ECommerce\Tests\Integration\ErrorReportingClientIntegrationTest;
 use Axytos\KaufAufRechnung\Core\Abstractions\Model\Actions\ActionExecutorInterface;
 use Axytos\KaufAufRechnung\Core\Model\Actions\ActionExecutor;
 use Axytos\KaufAufRechnung\Core\Model\AxytosOrderCommandFacade;
@@ -29,7 +27,6 @@ use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Database\DatabaseTransaction
 use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Logging\LoggerAdapterInterface as KARCoreLoggerAdapterInterface;
 use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\OrderSyncRepositoryInterface;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Configuration\ClientSecretProvider;
-use Axytos\KaufAufRechnung_OXID5\Adapter\Database\DatabaseTransaction;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Database\DatabaseTransactionFactory;
 use Axytos\KaufAufRechnung_OXID5\Adapter\HashCalculation\HashAlgorithmInterface;
 use Axytos\KaufAufRechnung_OXID5\Adapter\HashCalculation\HashCalculator;
@@ -40,11 +37,9 @@ use Axytos\KaufAufRechnung_OXID5\Adapter\PluginOrderFactory;
 use Axytos\KaufAufRechnung_OXID5\Client\ApiHostProvider;
 use Axytos\KaufAufRechnung_OXID5\Client\ApiKeyProvider;
 use Axytos\KaufAufRechnung_OXID5\Client\FallbackModeConfiguration;
-use Axytos\KaufAufRechnung_OXID5\Client\Oxid5ShopVersionProvider;
 use Axytos\KaufAufRechnung_OXID5\Client\PaymentMethodConfiguration;
 use Axytos\KaufAufRechnung_OXID5\Client\UserAgentInfoProvider;
 use Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration;
-use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext;
 use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory;
 use Axytos\KaufAufRechnung_OXID5\DataAbstractionLayer\OrderRepository;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory;
@@ -63,8 +58,6 @@ use Axytos\KaufAufRechnung_OXID5\DataMapping\ShippingBasketPositionDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 use Axytos\KaufAufRechnung_OXID5\Logging\LoggerAdapter;
 use Axytos\KaufAufRechnung_OXID5\OrderSync\OrderSyncCronJob;
-use Axytos\KaufAufRechnung_OXID5\OrderSync\ShopSystemOrderFactory;
-use Axytos\KaufAufRechnung_OXID5\OrderSync\ShopSystemOrderRepository;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\DeliveryWeightCalculator;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
@@ -76,23 +69,23 @@ class ContainerFactory
     /**
      * @var self|null
      */
-    private static $instance = null;
+    private static $instance;
 
     /**
      * @var Container
      */
-    private $container = null;
+    private $container;
 
     private function __construct()
     {
     }
 
     /**
-     * @return \Axytos\ECommerce\DependencyInjection\Container
+     * @return Container
      */
     public function getContainer()
     {
-        if ($this->container === null) {
+        if (null === $this->container) {
             $this->initializeContainer();
         }
 
@@ -117,9 +110,6 @@ class ContainerFactory
         });
         $containerBuilder->registerFactory(PaymentMethodConfiguration::class, function () {
             return new PaymentMethodConfiguration();
-        });
-        $containerBuilder->registerFactory(Oxid5ShopVersionProvider::class, function () {
-            return new Oxid5ShopVersionProvider();
         });
         $containerBuilder->registerFactory(LoggerAdapter::class, function () {
             return new LoggerAdapter();
@@ -214,8 +204,7 @@ class ContainerFactory
         });
         $containerBuilder->registerFactory(UserAgentInfoProviderInterface::class, function ($container) {
             return new UserAgentInfoProvider(
-                $container->get(ComposerPackageInfoProvider::class),
-                $container->get(Oxid5ShopVersionProvider::class)
+                $container->get(ComposerPackageInfoProvider::class)
             );
         });
         $containerBuilder->registerFactory(FallbackModeConfigurationInterface::class, function () {
@@ -357,14 +346,16 @@ class ContainerFactory
      */
     public static function getInstance()
     {
-        if (self::$instance === null) {
+        if (null === self::$instance) {
             self::$instance = new ContainerFactory();
         }
+
         return self::$instance;
     }
 
     /**
      * Forces reload of the ContainerFactory on next request.
+     *
      * @return void
      */
     public static function resetContainer()

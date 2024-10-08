@@ -2,22 +2,16 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Adapter;
 
+use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Model\AxytosOrderStateInfo;
 use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\PluginOrderInterface;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\BasketUpdateInformation;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\CancelInformation;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\CheckoutInformation;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\InvoiceInformation;
+use Axytos\KaufAufRechnung_OXID5\Adapter\Information\PaymentInformation;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\RefundInformation;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\ShippingInformation;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\TrackingInformation;
-use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Model\AxytosOrderStateInfo;
-use Axytos\KaufAufRechnung_OXID5\Adapter\HashCalculation\HashCalculator;
-use Axytos\KaufAufRechnung_OXID5\Adapter\Information\PaymentInformation;
-use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory;
-use oxField;
-use oxOrder;
-use oxRegistry;
-use oxUtilsDate;
 
 class PluginOrder implements PluginOrderInterface
 {
@@ -27,19 +21,26 @@ class PluginOrder implements PluginOrderInterface
     private $order;
 
     /**
-     * @var InvoiceOrderContextFactory
+     * @var \Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory
      */
     private $invoiceOrderContextFactory;
 
     /**
-     * @var HashCalculator
+     * @var HashCalculation\HashCalculator
      */
     private $hashCalculator;
 
+    /**
+     * @param \oxOrder                                                      $order
+     * @param \Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory $invoiceOrderContextFactory
+     * @param HashCalculation\HashCalculator                                $hashCalculator
+     *
+     * @return void
+     */
     public function __construct(
-        oxOrder $order,
-        InvoiceOrderContextFactory $invoiceOrderContextFactory,
-        HashCalculator $hashCalculator
+        $order,
+        $invoiceOrderContextFactory,
+        $hashCalculator
     ) {
         $this->order = $order;
         $this->invoiceOrderContextFactory = $invoiceOrderContextFactory;
@@ -54,17 +55,18 @@ class PluginOrder implements PluginOrderInterface
 
     public function loadState()
     {
-        $state = strval($this->order->getFieldData("axytoskaufaufrechnungorderstate"));
-        $data = strval($this->order->getFieldData("axytoskaufaufrechnungorderstatedata"));
+        $state = strval($this->order->getFieldData('axytoskaufaufrechnungorderstate'));
+        $data = strval($this->order->getFieldData('axytoskaufaufrechnungorderstatedata'));
+
         return new AxytosOrderStateInfo($state, $data);
     }
 
     public function saveState($state, $data = null)
     {
         /** @phpstan-ignore-next-line */
-        $this->order->oxorder__axytoskaufaufrechnungorderstate = new oxField($state);
+        $this->order->oxorder__axytoskaufaufrechnungorderstate = new \oxField($state);
         /** @phpstan-ignore-next-line */
-        $this->order->oxorder__axytoskaufaufrechnungorderstatedata = new oxField($data);
+        $this->order->oxorder__axytoskaufaufrechnungorderstatedata = new \oxField($data);
         $this->order->save();
     }
 
@@ -72,7 +74,7 @@ class PluginOrder implements PluginOrderInterface
     {
         $hash = $this->calculateOrderBasketHash();
         /** @phpstan-ignore-next-line */
-        $this->order->oxorder__axytoskaufaufrechnungorderbaskethash = new oxField($hash);
+        $this->order->oxorder__axytoskaufaufrechnungorderbaskethash = new \oxField($hash);
         $this->order->save();
     }
 
@@ -83,7 +85,7 @@ class PluginOrder implements PluginOrderInterface
 
     public function hasBeenCanceled()
     {
-        return boolval($this->order->getFieldData("oxstorno"));
+        return boolval($this->order->getFieldData('oxstorno'));
     }
 
     public function cancelInformation()
@@ -93,7 +95,7 @@ class PluginOrder implements PluginOrderInterface
 
     public function hasBeenInvoiced()
     {
-        return strval($this->order->getFieldData("oxbillnr")) !== '';
+        return '' !== strval($this->order->getFieldData('oxbillnr'));
     }
 
     public function invoiceInformation()
@@ -116,27 +118,27 @@ class PluginOrder implements PluginOrderInterface
     public function hasShippingReported()
     {
         /** @phpstan-ignore-next-line */
-        return $this->order->getFieldData("axytoskaufaufrechnungshippingreported");
+        return $this->order->getFieldData('axytoskaufaufrechnungshippingreported');
     }
 
     public function hasBeenShipped()
     {
-        /** @var oxUtilsDate */
-        $dateUtils = oxRegistry::get(oxUtilsDate::class);
+        /** @var \oxUtilsDate */
+        $dateUtils = \oxRegistry::get(\oxUtilsDate::class);
 
         /** @var string */
-        $sendDateRaw = $this->order->getFieldData("oxsenddate");
+        $sendDateRaw = $this->order->getFieldData('oxsenddate');
         $sendDate = $dateUtils->formatDBDate($sendDateRaw, true);
 
-        return $sendDate !== "0000-00-00 00:00:00" &&
-            $sendDate !== "-" &&
-            $sendDate !== '';
+        return '0000-00-00 00:00:00' !== $sendDate
+            && '-' !== $sendDate
+            && '' !== $sendDate;
     }
 
     public function saveHasShippingReported()
     {
         /** @phpstan-ignore-next-line */
-        $this->order->oxorder__axytoskaufaufrechnungshippingreported = new oxField(1);
+        $this->order->oxorder__axytoskaufaufrechnungshippingreported = new \oxField(1);
         $this->order->save();
     }
 
@@ -148,18 +150,19 @@ class PluginOrder implements PluginOrderInterface
     public function hasNewTrackingInformation()
     {
         /** @var string */
-        $trackCode = $this->order->getFieldData("oxtrackcode");
+        $trackCode = $this->order->getFieldData('oxtrackcode');
         /** @var string */
-        $reportedTrackingCode = $this->order->getFieldData("axytoskaufaufrechnungreportedtrackingcode");
+        $reportedTrackingCode = $this->order->getFieldData('axytoskaufaufrechnungreportedtrackingcode');
+
         return $trackCode !== $reportedTrackingCode;
     }
 
     public function saveNewTrackingInformation()
     {
         /** @var string */
-        $trackCode = $this->order->getFieldData("oxtrackcode");
+        $trackCode = $this->order->getFieldData('oxtrackcode');
         /** @phpstan-ignore-next-line */
-        $this->order->oxorder__axytoskaufaufrechnungreportedtrackingcode = new oxField($trackCode);
+        $this->order->oxorder__axytoskaufaufrechnungreportedtrackingcode = new \oxField($trackCode);
         $this->order->save();
     }
 
@@ -171,8 +174,9 @@ class PluginOrder implements PluginOrderInterface
     public function hasBasketUpdates()
     {
         /** @var string */
-        $oldHash = $this->order->getFieldData("axytoskaufaufrechnungorderbaskethash");
+        $oldHash = $this->order->getFieldData('axytoskaufaufrechnungorderbaskethash');
         $newHash = $this->calculateOrderBasketHash();
+
         return $newHash !== $oldHash;
     }
 
@@ -180,7 +184,7 @@ class PluginOrder implements PluginOrderInterface
     {
         $orderHash = $this->calculateOrderBasketHash();
         /** @phpstan-ignore-next-line */
-        $this->order->oxorder__axytoskaufaufrechnungorderbaskethash = new oxField($orderHash);
+        $this->order->oxorder__axytoskaufaufrechnungorderbaskethash = new \oxField($orderHash);
         $this->order->save();
     }
 
@@ -207,6 +211,7 @@ class PluginOrder implements PluginOrderInterface
     private function calculateOrderBasketHash()
     {
         $basket = $this->checkoutInformation()->getBasket();
+
         return $this->hashCalculator->calculateBasketHash($basket);
     }
 }

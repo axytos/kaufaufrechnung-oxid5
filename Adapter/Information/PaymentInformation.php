@@ -2,18 +2,16 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Adapter\Information;
 
-use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext;
 use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Information\PaymentInformationInterface;
+use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext;
 
 /**
- * payment callbacks are currently not a supported feature for oxid
- *
- * @package Axytos\KaufAufRechnung_OXID5\Adapter\Information
+ * payment callbacks are currently not a supported feature for oxid.
  */
 class PaymentInformation implements PaymentInformationInterface
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext
+     * @var InvoiceOrderContext
      */
     private $invoiceOrderContext;
 

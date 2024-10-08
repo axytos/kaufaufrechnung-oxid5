@@ -3,13 +3,11 @@
 namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\BasketPositionDtoCollection;
-use oxOrder;
-use oxList;
 
 class BasketPositionDtoCollectionFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\BasketPositionDtoFactory
+     * @var BasketPositionDtoFactory
      */
     private $basketPositionDtoFactory;
 
@@ -19,12 +17,13 @@ class BasketPositionDtoCollectionFactory
     }
 
     /**
-     * @param oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\BasketPositionDtoCollection
+     * @param \oxOrder $order
+     *
+     * @return BasketPositionDtoCollection
      */
     public function create($order)
     {
-        /** @var oxList */
+        /** @var \oxList */
         $orderArticles = $order->getOrderArticles();
         $positions = array_map([$this->basketPositionDtoFactory, 'create'], array_values($orderArticles->getArray()));
 

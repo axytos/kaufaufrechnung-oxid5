@@ -2,14 +2,14 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Adapter\Information;
 
-use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext;
 use Axytos\KaufAufRechnung\Core\Plugin\Abstractions\Information\BasketUpdateInformationInterface;
 use Axytos\KaufAufRechnung_OXID5\Adapter\Information\BasketUpdate\Basket;
+use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext;
 
 class BasketUpdateInformation implements BasketUpdateInformationInterface
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContext
+     * @var InvoiceOrderContext
      */
     private $invoiceOrderContext;
 
@@ -26,6 +26,7 @@ class BasketUpdateInformation implements BasketUpdateInformationInterface
     public function getBasket()
     {
         $dto = $this->invoiceOrderContext->getBasket();
+
         return new Basket($dto);
     }
 }

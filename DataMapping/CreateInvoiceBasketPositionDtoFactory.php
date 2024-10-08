@@ -9,12 +9,12 @@ use Axytos\KaufAufRechnung_OXID5\ValueCalculation\VoucherDiscountCalculator;
 class CreateInvoiceBasketPositionDtoFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator
+     * @var ShippingCostCalculator
      */
     private $shippingCostCalculator;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\VoucherDiscountCalculator
+     * @var VoucherDiscountCalculator
      */
     private $voucherDiscountCalculator;
 
@@ -28,31 +28,33 @@ class CreateInvoiceBasketPositionDtoFactory
 
     /**
      * @param \oxOrderArticle $orderArticle
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDto
+     *
+     * @return CreateInvoiceBasketPositionDto
      */
     public function create($orderArticle)
     {
         $position = new CreateInvoiceBasketPositionDto();
-        $position->productId = strval($orderArticle->getFieldData("oxartnum"));
-        $position->productName = strval($orderArticle->getFieldData("oxtitle"));
-        $position->quantity = intval($orderArticle->getFieldData("oxamount"));
-        $position->taxPercent = floatval($orderArticle->getFieldData("oxvat"));
-        $position->netPricePerUnit = floatval($orderArticle->getFieldData("oxnprice"));
-        $position->grossPricePerUnit = floatval($orderArticle->getFieldData("oxbprice"));
-        $position->netPositionTotal = floatval($orderArticle->getFieldData("oxnetprice"));
-        $position->grossPositionTotal = floatval($orderArticle->getFieldData("oxbrutprice"));
+        $position->productId = strval($orderArticle->getFieldData('oxartnum'));
+        $position->productName = strval($orderArticle->getFieldData('oxtitle'));
+        $position->quantity = floatval($orderArticle->getFieldData('oxamount'));
+        $position->taxPercent = floatval($orderArticle->getFieldData('oxvat'));
+        $position->netPricePerUnit = floatval($orderArticle->getFieldData('oxnprice'));
+        $position->grossPricePerUnit = floatval($orderArticle->getFieldData('oxbprice'));
+        $position->netPositionTotal = floatval($orderArticle->getFieldData('oxnetprice'));
+        $position->grossPositionTotal = floatval($orderArticle->getFieldData('oxbrutprice'));
 
         return $position;
     }
 
     /**
      * @param \oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDto
+     *
+     * @return CreateInvoiceBasketPositionDto
      */
     public function createShippingPosition($order)
     {
-        $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
-        $deliveryTax = floatval($order->getFieldData("oxdelvat"));
+        $grossDeliveryCosts = floatval($order->getFieldData('oxdelcost'));
+        $deliveryTax = floatval($order->getFieldData('oxdelvat'));
 
         $position = new CreateInvoiceBasketPositionDto();
         $position->productId = '0';
@@ -63,13 +65,15 @@ class CreateInvoiceBasketPositionDtoFactory
         $position->taxPercent = $deliveryTax;
         $position->netPricePerUnit = $position->netPositionTotal;
         $position->grossPricePerUnit = $position->grossPositionTotal;
+
         return $position;
     }
 
     /**
-     * @param \oxOrder $order
+     * @param \oxOrder                                                               $order
      * @param \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDto[] $positions
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDto|null
+     *
+     * @return CreateInvoiceBasketPositionDto|null
      */
     public function createVoucherPosition($order, $positions)
     {
@@ -77,7 +81,7 @@ class CreateInvoiceBasketPositionDtoFactory
 
         $totalVoucherDiscountForOrder = $this->voucherDiscountCalculator->calculate($order);
 
-        if ($totalVoucherDiscountForOrder === 0.0) {
+        if (0.0 === $totalVoucherDiscountForOrder) {
             return null;
         }
 
@@ -97,6 +101,7 @@ class CreateInvoiceBasketPositionDtoFactory
 
         $position->netPricePerUnit = $position->netPositionTotal;
         $position->grossPricePerUnit = $position->grossPositionTotal;
+
         return $position;
     }
 }

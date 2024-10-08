@@ -2,27 +2,27 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Tests\Unit\DataMapping;
 
-use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketPositionDtoCollectionFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory;
+use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketPositionDtoCollectionFactory;
 use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketPositionDtoFactory;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\VoucherDiscountCalculator;
-use oxOrder;
-use oxOrderArticle;
-use oxList;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ */
 class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoMappingTestCase
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory
+     * @var BasketDtoFactory
      */
     private $sut;
 
     /**
      * @before
+     *
      * @return void
      */
     #[Before]
@@ -40,7 +40,7 @@ class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoM
 
     /**
      *  For B2C Brutto Vouchers
-     *  =======================
+     *  =======================.
      *
      *  Voucher             =  10.00 %
      *
@@ -78,7 +78,7 @@ class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoM
         0 => [
             'oxartnum' => '162122.05.4000',
             'oxtitle' => 'Powerback Slim Fit Rot 4000 mAh',
-            'oxamount' => 50,
+            'oxamount' => 50.5,
             'oxbrutprice' => 519.00,
             'oxnetprice' => 435.50,
             'oxvat' => 19,
@@ -92,7 +92,7 @@ class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoM
      */
     public function test_mapping_of_basket_totals()
     {
-        /** @var oxOrder&MockObject */
+        /** @var \oxOrder&MockObject */
         $order = $this->createOrderMock($this->orderData, $this->articleData);
 
         /** @var \Axytos\ECommerce\DataTransferObjects\BasketDto */
@@ -109,17 +109,17 @@ class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoM
      */
     public function test_mapping_of_article_positions()
     {
-        /** @var oxOrder&MockObject */
+        /** @var \oxOrder&MockObject */
         $order = $this->createOrderMock($this->orderData, $this->articleData);
 
         /** @var \Axytos\ECommerce\DataTransferObjects\BasketDto */
         $basketDto = $this->sut->create($order);
 
-        /** @var array<mixed,\Axytos\ECommerce\DataTransferObjects\BasketPositionDto>  */
+        /** @var array<mixed,\Axytos\ECommerce\DataTransferObjects\BasketPositionDto> */
         $positions = $this->getBasketPositionsForArticlesByProductId($basketDto);
         $this->assertEquals('162122.05.4000', $positions['162122.05.4000']->productId);
         $this->assertEquals('Powerback Slim Fit Rot 4000 mAh', $positions['162122.05.4000']->productName);
-        $this->assertEquals(50, $positions['162122.05.4000']->quantity);
+        $this->assertEquals(50.5, $positions['162122.05.4000']->quantity);
         $this->assertEquals(519.00, $positions['162122.05.4000']->grossPositionTotal);
         $this->assertEquals(435.50, $positions['162122.05.4000']->netPositionTotal);
         $this->assertEquals(19, $positions['162122.05.4000']->taxPercent);
@@ -132,7 +132,7 @@ class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoM
      */
     public function test_mapping_of_shipping_position()
     {
-        /** @var oxOrder&MockObject */
+        /** @var \oxOrder&MockObject */
         $order = $this->createOrderMock($this->orderData, $this->articleData);
 
         /** @var \Axytos\ECommerce\DataTransferObjects\BasketDto */
@@ -154,7 +154,7 @@ class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoM
      */
     public function test_mapping_of_voucher_position()
     {
-        /** @var oxOrder&MockObject */
+        /** @var \oxOrder&MockObject */
         $order = $this->createOrderMock($this->orderData, $this->articleData);
 
         /** @var \Axytos\ECommerce\DataTransferObjects\BasketDto */
@@ -176,7 +176,7 @@ class BasketDtoMappingForB2CVoucherWithPercentageDiscountTest extends BasketDtoM
      */
     public function test_textrate_of_voucher_position_is_zero()
     {
-        /** @var oxOrder&MockObject */
+        /** @var \oxOrder&MockObject */
         $order = $this->createOrderMock($this->orderData, $this->articleData);
 
         /** @var \Axytos\ECommerce\DataTransferObjects\BasketDto */

@@ -2,14 +2,15 @@
 
 namespace Axytos\KaufAufRechnung_OXID5\Client;
 
-class Oxid5ShopVersionProvider
+trait OxidShopVersionAccessTrait
 {
     /**
      * @return string
      */
-    public function getVersion()
+    protected function getVersion()
     {
         $config = \oxRegistry::getConfig();
+
         return $config->getVersion();
     }
 }

@@ -8,7 +8,7 @@ use Axytos\KaufAufRechnung_OXID5\Logging\LoggerAdapter as PluginLogger;
 class LoggerAdapter implements LoggerAdapterInterface
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Logging\LoggerAdapter
+     * @var PluginLogger
      */
     private $logger;
 

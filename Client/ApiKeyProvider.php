@@ -8,7 +8,7 @@ use Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration;
 class ApiKeyProvider implements ApiKeyProviderInterface
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration
+     * @var PluginConfiguration
      */
     public $pluginConfig;
 

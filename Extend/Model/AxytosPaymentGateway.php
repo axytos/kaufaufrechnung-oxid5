@@ -8,7 +8,6 @@ use Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration;
 use Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler;
 use Axytos\KaufAufRechnung_OXID5\Events\AxytosEvents;
 use Axytos\KaufAufRechnung_OXID5\Extend\AxytosServiceContainer;
-use oxRegistry;
 
 class AxytosPaymentGateway extends AxytosPaymentGateway_parent
 {
@@ -16,23 +15,24 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
 
     /**
      * @phpstan-ignore-next-line
-     * @var \Axytos\ECommerce\Clients\Invoice\PluginConfigurationValidator
+     *
+     * @var PluginConfigurationValidator
      */
     private $pluginConfigurationValidator;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ErrorReporting\ErrorHandler
+     * @var ErrorHandler
      */
     private $errorHandler;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Configuration\PluginConfiguration
+     * @var PluginConfiguration
      */
     private $pluginConfiguration;
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\Adapter\PluginOrderFactory
+     * @var PluginOrderFactory
      */
     private $pluginOrderFactory;
     /**
-     * @var \Axytos\KaufAufRechnung\Core\Model\AxytosOrderFactory
+     * @var AxytosOrderFactory
      */
     private $axytosOrderFactory;
 
@@ -46,12 +46,9 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
         $this->axytosOrderFactory = $this->getFromAxytosServiceContainer(AxytosOrderFactory::class);
     }
 
-    /**
-     * @return bool
-     */
-    public function executePayment($amount, &$oOrder)
+    public function executePayment($dAmount, &$oOrder)
     {
-        /** @var \AxytosOrder */
+        /** @var AxytosOrder */
         $order = $oOrder;
         $session = oxRegistry::getSession();
         $sessionVariableKey = AxytosEvents::PAYMENT_METHOD_ID . '_error_id';
@@ -60,18 +57,19 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
         if (
             is_null($order)
             || is_null($order->getPaymentType())
-            || $order->getPaymentType()->getFieldData("oxpaymentsid") !== AxytosEvents::PAYMENT_METHOD_ID
+            || AxytosEvents::PAYMENT_METHOD_ID !== $order->getPaymentType()->getFieldData('oxpaymentsid')
         ) {
-            $success = parent::executePayment($amount, $order);
+            $success = parent::executePayment($dAmount, $order);
             if ($success) {
                 $session->deleteVariable($sessionVariableKey);
                 $session->deleteVariable($sessionVariableErrorMessage);
             }
+
             return $success;
         }
 
         try {
-            /** @var \AxytosOrder */
+            /** @var AxytosOrder */
             $order = $oOrder;
 
             // add pre-check code here
@@ -84,7 +82,7 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
 
             $shopAction = $axytosOrder->getOrderCheckoutAction();
 
-            if ($shopAction === AxytosOrderCheckoutAction::CHANGE_PAYMENT_METHOD) {
+            if (AxytosOrderCheckoutAction::CHANGE_PAYMENT_METHOD === $shopAction) {
                 $config = oxRegistry::getConfig();
                 $utils = oxRegistry::getUtils();
                 $order->delete();
@@ -96,19 +94,21 @@ class AxytosPaymentGateway extends AxytosPaymentGateway_parent
                 }
 
                 $utils->redirect($config->getSslShopUrl() . 'index.php?cl=payment&' . AxytosEvents::PAYMENT_METHOD_ID . '_error_id=' . $shopAction, false);
-                return false;
-            } else {
-                $success = parent::executePayment($amount, $order);
 
-                return $success;
+                return false;
             }
-        } catch (\Throwable $th) {
+            $success = parent::executePayment($dAmount, $order);
+
+            return $success;
+        } catch (Throwable $th) {
             $this->errorHandler->handle($th);
             $order->delete();
+
             return false;
-        } catch (\Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
+        } catch (Exception $th) { // @phpstan-ignore-line | php5.6 compatibility
             $this->errorHandler->handle($th);
             $order->delete();
+
             return false;
         }
     }

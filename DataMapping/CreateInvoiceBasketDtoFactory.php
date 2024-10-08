@@ -8,17 +8,17 @@ use Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator;
 class CreateInvoiceBasketDtoFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketPositionDtoCollectionFactory
+     * @var CreateInvoiceBasketPositionDtoCollectionFactory
      */
     private $createInvoiceBasketPositionDtoCollectionFactory;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceTaxGroupDtoCollectionFactory
+     * @var CreateInvoiceTaxGroupDtoCollectionFactory
      */
     private $createInvoiceTaxGroupDtoCollectionFactory;
 
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\ShippingCostCalculator
+     * @var ShippingCostCalculator
      */
     private $shippingCostCalculator;
 
@@ -34,27 +34,28 @@ class CreateInvoiceBasketDtoFactory
 
     /**
      * @param \oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketDto
+     *
+     * @return CreateInvoiceBasketDto
      */
     public function create($order)
     {
         $isB2B = boolval($order->getFieldData('oxisnettomode'));
-        $grossDeliveryCosts = floatval($order->getFieldData("oxdelcost"));
-        $deliveryTax = floatval($order->getFieldData("oxdelvat"));
+        $grossDeliveryCosts = floatval($order->getFieldData('oxdelcost'));
+        $deliveryTax = floatval($order->getFieldData('oxdelvat'));
         $netDeliveryCosts = $this->shippingCostCalculator->calculateNetPrice($grossDeliveryCosts, $deliveryTax);
 
         // the total monetary value of all applied vouchers
-        $totalVoucherDiscount = floatval($order->getFieldData("oxvoucherdiscount"));
+        $totalVoucherDiscount = floatval($order->getFieldData('oxvoucherdiscount'));
 
         $basket = new CreateInvoiceBasketDto();
         $basket->positions = $this->createInvoiceBasketPositionDtoCollectionFactory->create($order);
         $basket->taxGroups = $this->createInvoiceTaxGroupDtoCollectionFactory->create($order);
 
-        $basket->grossTotal = floatval($order->getFieldData("oxtotalordersum"));
+        $basket->grossTotal = floatval($order->getFieldData('oxtotalordersum'));
         if ($isB2B) {
-            $basket->netTotal = floatval($order->getFieldData("oxtotalnetsum")) + $netDeliveryCosts - $totalVoucherDiscount;
+            $basket->netTotal = floatval($order->getFieldData('oxtotalnetsum')) + $netDeliveryCosts - $totalVoucherDiscount;
         } else {
-            $basket->netTotal = floatval($order->getFieldData("oxtotalnetsum")) + $netDeliveryCosts;
+            $basket->netTotal = floatval($order->getFieldData('oxtotalnetsum')) + $netDeliveryCosts;
         }
 
         return $basket;
