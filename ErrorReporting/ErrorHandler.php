@@ -3,12 +3,11 @@
 namespace Axytos\KaufAufRechnung_OXID5\ErrorReporting;
 
 use Axytos\ECommerce\Clients\ErrorReporting\ErrorReportingClientInterface;
-use Throwable;
 
 class ErrorHandler
 {
     /**
-     * @var \Axytos\ECommerce\Clients\ErrorReporting\ErrorReportingClientInterface
+     * @var ErrorReportingClientInterface
      */
     private $errorReportingClient;
 
@@ -19,6 +18,7 @@ class ErrorHandler
 
     /**
      * @param \Throwable $throwable
+     *
      * @return void
      */
     public function handle($throwable)

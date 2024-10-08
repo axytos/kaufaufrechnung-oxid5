@@ -3,70 +3,58 @@
 namespace Axytos\KaufAufRechnung_OXID5\Logging;
 
 use Axytos\ECommerce\Logging\LoggerAdapterInterface;
-use DateTime;
-use oxRegistry;
-use oxUtils;
 
 class LoggerAdapter implements LoggerAdapterInterface
 {
+    use OxidLoggerFactoryTrait;
+
     /**
-     * @var oxUtils
+     * @var \Psr\Log\LoggerInterface
      */
-    private $utils;
+    private $logger;
 
     public function __construct()
     {
-        $this->utils = oxRegistry::getUtils();
+        $this->logger = $this->getLogger();
     }
 
     /**
      * @param string $message
+     *
      * @return void
      */
     public function error($message)
     {
-        $this->logMessage("[Error]  ", $message);
+        $this->logger->error($message);
     }
 
     /**
      * @param string $message
+     *
      * @return void
      */
     public function warning($message)
     {
-        $this->logMessage("[Warning]", $message);
+        $this->logger->warning($message);
     }
 
     /**
      * @param string $message
+     *
      * @return void
      */
     public function info($message)
     {
-        $this->logMessage("[Info]   ", $message);
+        $this->logger->info($message);
     }
 
     /**
      * @param string $message
+     *
      * @return void
      */
     public function debug($message)
     {
-        $this->logMessage("[Debug]  ", $message);
-    }
-
-    /**
-     * @param string $type
-     * @param string $message
-     * @return void
-     */
-    private function logMessage($type, $message)
-    {
-        $now = new DateTime();
-        $logEntry = $now->format(DateTime::ISO8601) . " " . $type . " " . $message . "\n";
-        $this->utils->writeToLog(
-            $logEntry,
-            "axytos_kaufaufrechnung.log"
-        );
+        $this->logger->debug($message);
     }
 }

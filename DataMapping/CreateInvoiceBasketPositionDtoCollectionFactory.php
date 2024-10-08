@@ -3,13 +3,11 @@
 namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDtoCollection;
-use oxList;
-use oxOrder;
 
 class CreateInvoiceBasketPositionDtoCollectionFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketPositionDtoFactory
+     * @var CreateInvoiceBasketPositionDtoFactory
      */
     private $createInvoiceBasketPositionDtoFactory;
 
@@ -19,12 +17,13 @@ class CreateInvoiceBasketPositionDtoCollectionFactory
     }
 
     /**
-     * @param oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceBasketPositionDtoCollection
+     * @param \oxOrder $order
+     *
+     * @return CreateInvoiceBasketPositionDtoCollection
      */
     public function create($order)
     {
-        /** @var oxList */
+        /** @var \oxList */
         $orderArticles = $order->getOrderArticles();
         $positions = array_map([$this->createInvoiceBasketPositionDtoFactory, 'create'], array_values($orderArticles->getArray()));
 

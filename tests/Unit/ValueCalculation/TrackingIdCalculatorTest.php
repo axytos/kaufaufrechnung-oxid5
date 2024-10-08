@@ -3,20 +3,23 @@
 namespace Axytos\KaufAufRechnung_OXID5\Tests\Unit\ValueCalculation;
 
 use Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator;
-use oxOrder;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ */
 class TrackingIdCalculatorTest extends TestCase
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator
+     * @var TrackingIdCalculator
      */
     private $sut;
 
     /**
      * @before
+     *
      * @return void
      */
     #[Before]
@@ -30,13 +33,13 @@ class TrackingIdCalculatorTest extends TestCase
      */
     public function test_calculate_returns_empty_as_default()
     {
-        /** @var oxOrder&MockObject */
-        $order = $this->createMock(oxOrder::class);
+        /** @var \oxOrder&MockObject */
+        $order = $this->createMock(\oxOrder::class);
 
         $result = $this->sut->calculate($order);
 
         $this->assertTrue(is_array($result));
-        $this->assertTrue($result === []);
+        $this->assertTrue([] === $result);
     }
 
     /**
@@ -44,14 +47,14 @@ class TrackingIdCalculatorTest extends TestCase
      */
     public function test_calculate_returns_empty_for_empty_tracking_information()
     {
-        /** @var oxOrder&MockObject */
-        $order = $this->createMock(oxOrder::class);
+        /** @var \oxOrder&MockObject */
+        $order = $this->createMock(\oxOrder::class);
         $order->method('getFieldData')->with('oxtrackcode')->willReturn('');
 
         $result = $this->sut->calculate($order);
 
         $this->assertTrue(is_array($result));
-        $this->assertTrue($result === []);
+        $this->assertTrue([] === $result);
     }
 
     /**
@@ -59,8 +62,8 @@ class TrackingIdCalculatorTest extends TestCase
      */
     public function test_calculate_array_for_non_empty_tracking_information()
     {
-        /** @var oxOrder&MockObject */
-        $order = $this->createMock(oxOrder::class);
+        /** @var \oxOrder&MockObject */
+        $order = $this->createMock(\oxOrder::class);
         $order->method('getFieldData')->with('oxtrackcode')->willReturn('tracking code');
 
         $result = $this->sut->calculate($order);

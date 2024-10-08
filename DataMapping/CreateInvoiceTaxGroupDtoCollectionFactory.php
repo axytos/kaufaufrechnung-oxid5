@@ -4,13 +4,11 @@ namespace Axytos\KaufAufRechnung_OXID5\DataMapping;
 
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDto;
 use Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDtoCollection;
-use oxList;
-use oxOrder;
 
 class CreateInvoiceTaxGroupDtoCollectionFactory
 {
     /**
-     * @var \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceTaxGroupDtoFactory
+     * @var CreateInvoiceTaxGroupDtoFactory
      */
     private $createInvoiceTaxGroupDtoFactory;
 
@@ -20,18 +18,20 @@ class CreateInvoiceTaxGroupDtoCollectionFactory
     }
 
     /**
-     * @param oxOrder $order
-     * @return \Axytos\ECommerce\DataTransferObjects\CreateInvoiceTaxGroupDtoCollection
+     * @param \oxOrder $order
+     *
+     * @return CreateInvoiceTaxGroupDtoCollection
      */
     public function create($order)
     {
-        /** @var oxList */
+        /** @var \oxList */
         $orderArticles = $order->getOrderArticles();
+
         $positionTaxValues = array_map([$this->createInvoiceTaxGroupDtoFactory, 'create'], $orderArticles->getArray());
 
-        $voucherPosition = $this->createInvoiceTaxGroupDtoFactory->createVoucherPosition($order, $positionTaxValues);
-        if (!is_null($voucherPosition)) {
-            $positionTaxValues[] = $voucherPosition;
+        $voucherTaxGroup = $this->createInvoiceTaxGroupDtoFactory->createVoucherPosition($order);
+        if (!is_null($voucherTaxGroup)) {
+            $positionTaxValues[] = $voucherTaxGroup;
         }
 
         $positionTaxValues[] = $this->createInvoiceTaxGroupDtoFactory->createShippingPosition($order);
@@ -40,17 +40,19 @@ class CreateInvoiceTaxGroupDtoCollectionFactory
             array_reduce(
                 $positionTaxValues,
                 function (array $agg, CreateInvoiceTaxGroupDto $cur) {
-                    if (array_key_exists("$cur->taxPercent", $agg)) {
-                        $agg["$cur->taxPercent"]->total += $cur->total;
-                        $agg["$cur->taxPercent"]->valueToTax += $cur->valueToTax;
+                    if (array_key_exists("{$cur->taxPercent}", $agg)) {
+                        $agg["{$cur->taxPercent}"]->total += $cur->total;
+                        $agg["{$cur->taxPercent}"]->valueToTax += $cur->valueToTax;
                     } else {
-                        $agg["$cur->taxPercent"] = $cur;
+                        $agg["{$cur->taxPercent}"] = $cur;
                     }
+
                     return $agg;
                 },
                 []
             )
         );
+
         return new CreateInvoiceTaxGroupDtoCollection(...$taxGroups);
     }
 }

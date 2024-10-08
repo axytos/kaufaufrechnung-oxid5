@@ -5,23 +5,11 @@ namespace Axytos\KaufAufRechnung_OXID5\Core;
 use Axytos\ECommerce\Clients\Invoice\InvoiceOrderContextInterface;
 use Axytos\ECommerce\DataTransferObjects\RefundBasketDto;
 use Axytos\ECommerce\DataTransferObjects\ReturnPositionModelDtoCollection;
-use Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory;
-use Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketDtoFactory;
-use Axytos\KaufAufRechnung_OXID5\DataMapping\CustomerDataDtoFactory;
-use Axytos\KaufAufRechnung_OXID5\DataMapping\DeliveryAddressDtoFactory;
-use Axytos\KaufAufRechnung_OXID5\DataMapping\InvoiceAddressDtoFactory;
-use Axytos\KaufAufRechnung_OXID5\DataMapping\ShippingBasketPositionDtoCollectionFactory;
-use Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator;
-use Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator;
-use DateTimeImmutable;
-use DateTimeInterface;
-use oxField;
-use oxOrder;
 
 class InvoiceOrderContext implements InvoiceOrderContextInterface
 {
     /**
-     * @var oxOrder
+     * @var \oxOrder
      */
     private $order;
     /**
@@ -57,16 +45,29 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
      */
     private $logisticianCalculator;
 
+    /**
+     * @param \oxOrder                                                                             $order
+     * @param \Axytos\KaufAufRechnung_OXID5\DataMapping\CustomerDataDtoFactory                     $customerDataDtoFactory
+     * @param \Axytos\KaufAufRechnung_OXID5\DataMapping\InvoiceAddressDtoFactory                   $invoiceAddressDtoFactory
+     * @param \Axytos\KaufAufRechnung_OXID5\DataMapping\DeliveryAddressDtoFactory                  $deliveryAddressDtoFactory
+     * @param \Axytos\KaufAufRechnung_OXID5\DataMapping\BasketDtoFactory                           $basketDtoFactory
+     * @param \Axytos\KaufAufRechnung_OXID5\DataMapping\CreateInvoiceBasketDtoFactory              $createInvoiceBasketDtoFactory
+     * @param \Axytos\KaufAufRechnung_OXID5\DataMapping\ShippingBasketPositionDtoCollectionFactory $shippingBasketPositionDtoCollectionFactory
+     * @param \Axytos\KaufAufRechnung_OXID5\ValueCalculation\TrackingIdCalculator                  $trackingIdCalculator
+     * @param \Axytos\KaufAufRechnung_OXID5\ValueCalculation\LogisticianCalculator                 $logisticianCalculator
+     *
+     * @return void
+     */
     public function __construct(
-        oxOrder $order,
-        CustomerDataDtoFactory $customerDataDtoFactory,
-        InvoiceAddressDtoFactory $invoiceAddressDtoFactory,
-        DeliveryAddressDtoFactory $deliveryAddressDtoFactory,
-        BasketDtoFactory $basketDtoFactory,
-        CreateInvoiceBasketDtoFactory $createInvoiceBasketDtoFactory,
-        ShippingBasketPositionDtoCollectionFactory $shippingBasketPositionDtoCollectionFactory,
-        TrackingIdCalculator $trackingIdCalculator,
-        LogisticianCalculator $logisticianCalculator
+        $order,
+        $customerDataDtoFactory,
+        $invoiceAddressDtoFactory,
+        $deliveryAddressDtoFactory,
+        $basketDtoFactory,
+        $createInvoiceBasketDtoFactory,
+        $shippingBasketPositionDtoCollectionFactory,
+        $trackingIdCalculator,
+        $logisticianCalculator
     ) {
         $this->order = $order;
         $this->customerDataDtoFactory = $customerDataDtoFactory;
@@ -93,7 +94,7 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
     public function getOrderInvoiceNumber()
     {
         /** @var string */
-        return $this->order->getFieldData("oxbillnr");
+        return $this->order->getFieldData('oxbillnr');
     }
 
     /**
@@ -102,7 +103,7 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
     public function getOrderDateTime()
     {
         /** @phpstan-ignore-next-line */
-        return DateTimeImmutable::createFromFormat('Y-m-d G:i:s', $this->order->getFieldData("oxorderdate"));
+        return \DateTimeImmutable::createFromFormat('Y-m-d G:i:s', $this->order->getFieldData('oxorderdate'));
     }
 
     /**
@@ -138,10 +139,12 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
     }
 
     /**
-     * @return \Axytos\ECommerce\DataTransferObjects\RefundBasketDto
+     * @return RefundBasketDto
      */
     public function getRefundBasket()
     {
+        // should never be triggered!
+        // refunds are currently not a supported feature for oxid
         return new RefundBasketDto();
     }
 
@@ -162,7 +165,7 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
     }
 
     /**
-     * @return \Axytos\ECommerce\DataTransferObjects\ReturnPositionModelDtoCollection
+     * @return ReturnPositionModelDtoCollection
      */
     public function getReturnPositions()
     {
@@ -180,12 +183,13 @@ class InvoiceOrderContext implements InvoiceOrderContextInterface
 
     /**
      * @param mixed[] $data
+     *
      * @return void
      */
     public function setPreCheckResponseData($data)
     {
         /** @phpstan-ignore-next-line */
-        $this->order->oxorder__axytoskaufaufrechnungorderprecheckresult = new oxField(base64_encode(serialize($data)));
+        $this->order->oxorder__axytoskaufaufrechnungorderprecheckresult = new \oxField(base64_encode(serialize($data)));
         $this->order->save();
     }
 

@@ -1,12 +1,11 @@
 <?php
 
-namespace Axytos\KaufAufRechnung_OXID5\OrderSync;
+namespace Axytos\KaufAufRechnung_OXID5\Adapter;
 
-use Axytos\ECommerce\OrderSync\OrderHashCalculator;
+use Axytos\KaufAufRechnung_OXID5\Adapter\HashCalculation\HashCalculator;
 use Axytos\KaufAufRechnung_OXID5\Core\InvoiceOrderContextFactory;
-use oxOrder;
 
-class ShopSystemOrderFactory
+class PluginOrderFactory
 {
     /**
      * @var InvoiceOrderContextFactory
@@ -14,34 +13,36 @@ class ShopSystemOrderFactory
     private $invoiceOrderContextFactory;
 
     /**
-     * @var OrderHashCalculator
+     * @var HashCalculator
      */
-    private $orderHashCalculator;
+    private $hashCalculator;
 
     public function __construct(
         InvoiceOrderContextFactory $invoiceOrderContextFactory,
-        OrderHashCalculator $orderHashCalculator
+        HashCalculator $hashCalculator
     ) {
         $this->invoiceOrderContextFactory = $invoiceOrderContextFactory;
-        $this->orderHashCalculator = $orderHashCalculator;
+        $this->hashCalculator = $hashCalculator;
     }
 
     /**
      * @param \oxOrder $order
-     * @return \Axytos\ECommerce\OrderSync\ShopSystemOrderInterface
+     *
+     * @return \Axytos\KaufAufRechnung\Core\Plugin\Abstractions\PluginOrderInterface
      */
     public function create($order)
     {
-        return new ShopSystemOrder(
+        return new PluginOrder(
             $order,
             $this->invoiceOrderContextFactory,
-            $this->orderHashCalculator
+            $this->hashCalculator
         );
     }
 
     /**
      * @param \oxOrder[] $orders
-     * @return \Axytos\ECommerce\OrderSync\ShopSystemOrderInterface[]
+     *
+     * @return \Axytos\KaufAufRechnung\Core\Plugin\Abstractions\PluginOrderInterface[]
      */
     public function createMany($orders)
     {
