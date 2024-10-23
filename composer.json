@@ -40,5 +40,5 @@
         ],
         "phpunit": "vendor/bin/phpunit"
     },
-    "minimum-stability": "RC"
+    "minimum-stability": "stable"
 }
