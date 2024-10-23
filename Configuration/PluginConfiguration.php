@@ -36,8 +36,8 @@ class PluginConfiguration
     public function getCustomErrorMessage()
     {
         $errorMessage = $this->getSettingsValue('axytos_kaufaufrechnung_error_message');
-        /** @phpstan-ignore-next-line */
-        if (empty($errorMessage)) {
+
+        if ('' === $errorMessage) {
             return null;
         }
 
