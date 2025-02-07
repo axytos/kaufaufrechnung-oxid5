@@ -17,10 +17,10 @@
     "license": "proprietary",
     "require": {
         "php": ">=5.6.0",
-        "axytos/ecommerce-sdk": "1.7.0-rc",
-        "axytos/kaufaufrechnung-core": "1.7.0-rc",
-        "axytos/kaufaufrechnung-core-abstractions": "1.7.0-rc",
-        "axytos/kaufaufrechnung-core-plugin-abstractions": "1.7.0-rc"
+        "axytos/ecommerce-sdk": "1.7.1-rc",
+        "axytos/kaufaufrechnung-core": "1.7.1-rc",
+        "axytos/kaufaufrechnung-core-abstractions": "1.7.1-rc",
+        "axytos/kaufaufrechnung-core-plugin-abstractions": "1.7.1-rc"
     },
     "autoload": {
         "psr-4": {
