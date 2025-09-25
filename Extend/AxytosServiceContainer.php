@@ -9,9 +9,9 @@ trait AxytosServiceContainer
     /**
      * @template T
      *
-     * @psalm-param class-string<T> $serviceName
-     *
      * @param string $serviceName
+     *
+     * @psalm-param class-string<T> $serviceName
      *
      * @return T
      */
