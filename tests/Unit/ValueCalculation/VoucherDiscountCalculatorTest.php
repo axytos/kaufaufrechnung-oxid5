@@ -48,6 +48,21 @@ class VoucherDiscountCalculatorTest extends TestCase
     }
 
     /**
+     * @return array<array<mixed>>
+     */
+    public static function getZeroValues()
+    {
+        // [oxvoucherdiscount]
+        return [
+            [intval(0)],
+            [floatval(0)],
+            [''],
+            [false],
+            [null],
+        ];
+    }
+
+    /**
      * @return void
      */
     public function test_calculate_returns_negative_value_for_non_zero_integer_voucher_discount()
@@ -92,20 +107,5 @@ class VoucherDiscountCalculatorTest extends TestCase
         });
 
         return $order;
-    }
-
-    /**
-     * @return array<array<mixed>>
-     */
-    public static function getZeroValues()
-    {
-        // [oxvoucherdiscount]
-        return [
-            [intval(0)],
-            [floatval(0)],
-            [''],
-            [false],
-            [null],
-        ];
     }
 }

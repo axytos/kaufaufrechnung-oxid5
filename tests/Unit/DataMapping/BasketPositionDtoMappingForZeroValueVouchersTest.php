@@ -68,6 +68,27 @@ class BasketPositionDtoMappingForZeroValueVouchersTest extends TestCase
     }
 
     /**
+     * @return array<array<mixed>>
+     */
+    public static function getZeroValues()
+    {
+        // [oxisnettomode, oxvoucherdiscount]
+        return [
+            [true, intval(0)],
+            [true, floatval(0)],
+            [true, ''],
+            [true, false],
+            [true, null],
+
+            [false, intval(0)],
+            [false, floatval(0)],
+            [false, ''],
+            [false, false],
+            [false, null],
+        ];
+    }
+
+    /**
      * @param mixed $oxisnettomode
      * @param mixed $oxvoucherdiscount
      *
@@ -89,26 +110,5 @@ class BasketPositionDtoMappingForZeroValueVouchersTest extends TestCase
         });
 
         return $order;
-    }
-
-    /**
-     * @return array<array<mixed>>
-     */
-    public static function getZeroValues()
-    {
-        // [oxisnettomode, oxvoucherdiscount]
-        return [
-            [true, intval(0)],
-            [true, floatval(0)],
-            [true, ''],
-            [true, false],
-            [true, null],
-
-            [false, intval(0)],
-            [false, floatval(0)],
-            [false, ''],
-            [false, false],
-            [false, null],
-        ];
     }
 }
